@@ -1,0 +1,5 @@
+package com.app.movie.trade.enums;
+
+public enum MovieGenreEnum {
+	ACTION, DRAMA, THRILLER, ADVENTURE, ANIMATION, COMEDY, CRIME, FANTASY, FAMILY, ANIME, HISTORICAL, HORROR, ROMANTIC
+}
