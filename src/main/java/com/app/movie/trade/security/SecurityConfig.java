@@ -20,12 +20,12 @@ import com.app.movie.trade.helpers.JwtTokenFilter;
 public class SecurityConfig {
 	@Autowired
 	JwtTokenFilter jwtTokenFilter;
-
+	
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws AccessDeniedException, Exception {
 		return http.csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(requests -> requests
-						.requestMatchers("/user/**", "/auth/**", "/theatre/**", "/deal/**", "/cities/**", "/investment/**","/userprofile/**")
+						.requestMatchers("/user/**", "/auth/**", "/theatre/**", "/deal/**", "/cities/**", "/investment/**","/userprofile/**","/config/**")
 						.permitAll().requestMatchers(HttpMethod.GET, "/movie/**").permitAll().anyRequest()
 						.authenticated())
 				.sessionManagement(

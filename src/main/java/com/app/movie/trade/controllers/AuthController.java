@@ -1,5 +1,6 @@
 package com.app.movie.trade.controllers;
 
+import java.io.UnsupportedEncodingException;
 import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
@@ -18,7 +19,8 @@ import com.app.movie.trade.entities.AuthRequest;
 import com.app.movie.trade.entities.EmailAuthRequest;
 import com.app.movie.trade.helpers.JwtHelper;
 import com.app.movie.trade.services.OtpService;
-import com.app.movie.trade.services.UserService;
+
+import jakarta.mail.MessagingException;
 
 @RestController
 @RequestMapping("/auth")
@@ -26,14 +28,12 @@ public class AuthController {
 	@Autowired
 	private OtpService otpService;
 	@Autowired
-	UserService userService;
-	@Autowired
 	JwtHelper jwtHelper;
 	Logger logger = LoggerFactory.getLogger(AuthController.class);
 
 	@GetMapping("/generateOtp")
 	public ResponseEntity<HttpStatus> generateOtp(@RequestParam String mobileNo) {
-		logger.info("otp generated for given mobile number:: "+mobileNo);
+		logger.info("otp generated for given mobile number:: " + mobileNo);
 		otpService.generateOtp(mobileNo);
 		return ResponseEntity.ok(HttpStatus.OK);
 	}
@@ -41,23 +41,26 @@ public class AuthController {
 	@PostMapping("/validateOtp")
 	public ResponseEntity<String> validateOtp(@RequestBody AuthRequest authRequest)
 			throws NoSuchElementException, Exception {
-		logger.info("validating otp started with  given mobile number and otp :: "+authRequest.toString());
-		logger.info("validating otp started with  given mobile number "+authRequest.getMobileNo()+" otp :: "+authRequest.getOtp());
+		logger.info("validating otp started with  given mobile number and otp :: " + authRequest.toString());
+		logger.info("validating otp started with  given mobile number " + authRequest.getMobileNo() + " otp :: "
+				+ authRequest.getOtp());
 		String token = "";
 		boolean isOtpValid = otpService.validateOtp(authRequest);
-		logger.info("is otp validation result for given mobile number :: " +authRequest.getMobileNo()+" "+isOtpValid);
+		logger.info(
+				"is otp validation result for given mobile number :: " + authRequest.getMobileNo() + " " + isOtpValid);
 		if (isOtpValid) {
 			token = jwtHelper.generateToken(authRequest.getMobileNo());
 			logger.info("otp validated successfully");
 			return ResponseEntity.ok(token);
 		} else {
-			logger.info("otp validation failed for given number::"+authRequest.getMobileNo());
+			logger.info("otp validation failed for given number::" + authRequest.getMobileNo());
 			return ResponseEntity.badRequest().body("Invalid otp");
 		}
 	}
 
 	@GetMapping("/emailOtp")
-	public ResponseEntity<HttpStatus> sendOtpToEmail(@RequestParam String email) {
+	public ResponseEntity<HttpStatus> sendOtpToEmail(@RequestParam String email) throws UnsupportedEncodingException, MessagingException {
+		otpService.generateOtpToEmail(email);
 		return ResponseEntity.ok().build();
 	}
 

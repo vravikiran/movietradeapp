@@ -3,20 +3,14 @@ package com.app.movie.trade.entities;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
 
 @Entity
 public class Deal implements Serializable {
@@ -31,10 +25,6 @@ public class Deal implements Serializable {
 	private double total_dealprice;
 	private double total_actualprice;
 	private double maxprofit;
-	@JsonIgnore
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name = "dealid", referencedColumnName = "dealid")
-	private List<CategoryPricing> pricesByCategory = new ArrayList<>();
 	private int city_id;
 	private boolean is_invested;
 	@JsonIgnore
@@ -130,14 +120,6 @@ public class Deal implements Serializable {
 		this.maxprofit = maxprofit;
 	}
 
-	public List<CategoryPricing> getPricesByCategory() {
-		return pricesByCategory;
-	}
-
-	public void setPricesByCategory(List<CategoryPricing> pricesByCategory) {
-		this.pricesByCategory = pricesByCategory;
-	}
-
 	public int getCity_id() {
 		return city_id;
 	}
@@ -152,7 +134,7 @@ public class Deal implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(city_id, created_date, dealid, is_invested, maxprofit, movieid, pricesByCategory, showdate,
+		return Objects.hash(city_id, created_date, dealid, is_invested, maxprofit, movieid, showdate,
 				showtime, theatre_id, total_actualprice, total_dealprice, updated_date);
 	}
 
@@ -168,7 +150,7 @@ public class Deal implements Serializable {
 		return city_id == other.city_id && Objects.equals(created_date, other.created_date) && dealid == other.dealid
 				&& is_invested == other.is_invested
 				&& Double.doubleToLongBits(maxprofit) == Double.doubleToLongBits(other.maxprofit)
-				&& movieid == other.movieid && Objects.equals(pricesByCategory, other.pricesByCategory)
+				&& movieid == other.movieid
 				&& Objects.equals(showdate, other.showdate) && Objects.equals(showtime, other.showtime)
 				&& theatre_id == other.theatre_id
 				&& Double.doubleToLongBits(total_actualprice) == Double.doubleToLongBits(other.total_actualprice)
@@ -180,7 +162,7 @@ public class Deal implements Serializable {
 	public String toString() {
 		return "Deal [dealid=" + dealid + ", theatre_id=" + theatre_id + ", movieid=" + movieid + ", showdate="
 				+ showdate + ", showtime=" + showtime + ", total_dealprice=" + total_dealprice + ", total_actualprice="
-				+ total_actualprice + ", maxprofit=" + maxprofit + ", pricesByCategory=" + pricesByCategory
+				+ total_actualprice + ", maxprofit=" + maxprofit
 				+ ", city_id=" + city_id + ", is_invested=" + is_invested + ", created_date=" + created_date
 				+ ", updated_date=" + updated_date + "]";
 	}

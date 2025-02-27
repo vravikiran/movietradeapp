@@ -1,14 +1,9 @@
 package com.app.movie.trade.security;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-import lombok.Data;
-
 @Configuration
-@ConfigurationProperties(prefix = "twilio")
-@Data
 public class TwilioConfig {
 	@Value("${twilio.account_sid}")
 	private String accountSid;
@@ -33,5 +28,15 @@ public class TwilioConfig {
 		super();
 	}
 
+	public void setAccountSid(String accountSid) {
+		this.accountSid = accountSid;
+	}
 
+	public void setAuthToken(String authToken) {
+		this.authToken = authToken;
+	}
+
+	public void setServiceId(String serviceId) {
+		this.serviceId = serviceId;
+	}
 }

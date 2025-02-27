@@ -17,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import com.app.movie.trade.entities.CategoryPricing;
 import com.app.movie.trade.entities.Deal;
 import com.app.movie.trade.entities.DealCountRequest;
 import com.app.movie.trade.entities.DealRequestObj;
@@ -25,7 +24,6 @@ import com.app.movie.trade.entities.DealResult;
 import com.app.movie.trade.entities.Movie;
 import com.app.movie.trade.entities.MovieDealCount;
 import com.app.movie.trade.entities.MovieDealCountPojo;
-import com.app.movie.trade.entities.SeatCategoryCapacity;
 import com.app.movie.trade.entities.Theatre;
 import com.app.movie.trade.entities.TheatreDeal;
 import com.app.movie.trade.entities.TheatreDealRequest;
@@ -44,25 +42,11 @@ public class DealService {
 	@Autowired
 	RedisTemplate<Object, Object> redisTemplate;
 	Logger logger = LoggerFactory.getLogger(DealService.class);
-	private static final Integer EXPIRE_MIN = 15;
+	private static final Integer EXPIRE_MIN = 5;
 
 	public Deal createDeal(Deal deal) {
 		logger.info("Creation of deal started ::"+deal.toString());
-		List<CategoryPricing> categoryPricings = deal.getPricesByCategory();
-		double totalDealPrice = 0;
-		double totalActualPrice = 0;
 		Theatre theatre = theatreRepository.getReferenceById(deal.getTheatre_id());
-		Map<Integer, Integer> capacityMappings = theatre.getSeatCategoryCapacities().stream()
-				.collect(Collectors.toMap(SeatCategoryCapacity::getCategory_id, SeatCategoryCapacity::getCapacity));
-		for (CategoryPricing categoryPricing : categoryPricings) {
-			int capacity = capacityMappings.get(categoryPricing.getCategory_id());
-			totalDealPrice += capacity * (categoryPricing.getDeal_ticketprice());
-			totalActualPrice += capacity * (categoryPricing.getActual_ticketprice());
-			categoryPricing.setDeal(deal);
-		}
-		deal.setTotal_dealprice(totalDealPrice);
-		deal.setTotal_actualprice(totalActualPrice);
-		deal.setMaxprofit(totalActualPrice - totalDealPrice);
 		deal.setCity_id(theatre.getCity_id());
 		deal.setCreated_date(LocalDate.now());
 		deal.setUpdated_date(LocalDate.now());
@@ -256,6 +240,7 @@ public class DealService {
 		Deal deal = dealRepository.getReferenceById(dealid);
 		deal.setUpdated_date(LocalDate.now());
 		deal.setTotal_dealprice(dealPrice);
+		deal.setMaxprofit(dealPrice);
 		dealRepository.save(deal);
 		logger.info("Successfully updated total deal price for a deal with id :: "+dealid);
 	}

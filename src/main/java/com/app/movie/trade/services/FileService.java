@@ -35,7 +35,7 @@ public class FileService {
 			throws IOException, UserNotFoundException {
 		logger.info("Upload image for user profile with mobile number ::" + mobileno);
 		String key = Long.valueOf(mobileno) + "/" + LocalDateTime.now() + "_" + file.getOriginalFilename();
-		URL url = uploadImageToBucket(file, bucketName, key);
+		URL url = imageUploadFromMobile(file, bucketName, key);
 		logger.info("url of the uploaded image :: " + url.toString());
 		if (!isNew) {
 			UserProfile userProfile = null;
@@ -56,13 +56,12 @@ public class FileService {
 			throws S3Exception, AwsServiceException, SdkClientException, IOException {
 		logger.info("Upload kyc image for user profile with mobile number ::" + mobileno);
 		String key = Long.valueOf(mobileno) + "/" + LocalDateTime.now() + "_" + file.getOriginalFilename();
-		URL url = uploadImageToBucket(file, bucketName, key);
+		URL url = imageUploadFromMobile(file, bucketName, key);
 		logger.info("kyc image uploaded successfully");
 		return url.toString();
 	}
 
-	private URL uploadImageToBucket(MultipartFile file, String bucketName, String key)
-			throws S3Exception, AwsServiceException, SdkClientException, IOException {
+	public URL imageUploadFromMobile(MultipartFile file, String bucketName, String key) throws IOException {
 		PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucketName).key(key).build();
 		s3Client.putObject(putObjectRequest,
 				RequestBody.fromInputStream(file.getInputStream(), file.getBytes().length));

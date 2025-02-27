@@ -37,7 +37,7 @@ public class UserProfileService implements UserDetailsService {
 	public static String PAN_NO = "pan_number";
 	Logger logger = LoggerFactory.getLogger(UserProfileService.class);
 
-	public UserProfile createUserProfile(UserProfile userProfile) throws Exception {
+	public UserProfile createUserProfile(UserProfile userProfile, boolean isAdminUser) throws Exception {
 		logger.info("Creation of user profile started :: " + userProfile.toString());
 		UserProfile createdUserProfile = null;
 		if (isUserExistsWithEmail(userProfile.getEmail()) || isUserExistsWithPanNo(userProfile.getPan_number())
@@ -49,7 +49,12 @@ public class UserProfileService implements UserDetailsService {
 			if (verificationService.verifyPanno(userProfile.getPan_number())) {
 				userProfile.setCreated_date(LocalDate.now());
 				userProfile.setUpdated_date(LocalDate.now());
-				Role role = new Role(3, "INVESTOR");
+				Role role = null;
+				if (isAdminUser) {
+					role = new Role(2, "ADMIN");
+				} else {
+					role = new Role(3, "INVESTOR");
+				}
 				userProfile.setRole(role);
 				createdUserProfile = userProfileRepository.save(userProfile);
 				logger.info(
@@ -142,7 +147,7 @@ public class UserProfileService implements UserDetailsService {
 			updatedUserProfile = userProfileRepository.save(userProfile);
 		} else {
 			logger.info("User profile not found with given mobile number :: " + mobileNo);
-			throw new UserNotFoundException();
+			throw new UserNotFoundException("User profile not found with given mobile number :: " + mobileNo);
 		}
 		return updatedUserProfile;
 	}

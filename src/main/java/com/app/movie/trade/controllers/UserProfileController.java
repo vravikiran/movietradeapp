@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -43,9 +44,16 @@ public class UserProfileController {
 	public ResponseEntity<UserProfile> createUserProfile(@RequestBody UserProfile userProfile)
 			throws DuplicateUserException, Exception {
 		logger.info("creating user profile with details :: " + userProfile.toString());
-		UserProfile createdUserProfile = userProfileService.createUserProfile(userProfile);
+		UserProfile createdUserProfile = userProfileService.createUserProfile(userProfile,false);
 		logger.info("creation of user profile successful");
 		return ResponseEntity.ok(createdUserProfile);
+	}
+	
+	@PostMapping("/admin")
+	@PreAuthorize("hasAuthority('SUPER_ADMIN')")
+	public ResponseEntity<UserProfile> createAdminUser(@RequestBody UserProfile userProfile) throws DuplicateUserException, Exception {
+		userProfileService.createUserProfile(userProfile,true);
+		return ResponseEntity.ok(userProfile);
 	}
 
 	@GetMapping

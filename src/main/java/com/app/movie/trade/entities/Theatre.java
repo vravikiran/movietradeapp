@@ -1,19 +1,12 @@
 package com.app.movie.trade.entities;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
 
 @Entity
 public class Theatre implements Serializable {
@@ -26,18 +19,6 @@ public class Theatre implements Serializable {
 	private String property_name;
 	private String theatre_name;
 	private int capacity;
-	@JsonIgnore
-	@OneToMany(cascade = CascadeType.ALL)
-	@JoinColumn(name = "theatre_id", referencedColumnName = "theatre_id")
-	private List<SeatCategoryCapacity> seatCategoryCapacities = new ArrayList<>();
-
-	public List<SeatCategoryCapacity> getSeatCategoryCapacities() {
-		return seatCategoryCapacities;
-	}
-
-	public void setSeatCategoryCapacities(List<SeatCategoryCapacity> seatCategoryCapacities) {
-		this.seatCategoryCapacities = seatCategoryCapacities;
-	}
 
 	public int getTheatre_id() {
 		return theatre_id;
@@ -93,8 +74,7 @@ public class Theatre implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(capacity, city_id, location, property_name, seatCategoryCapacities, theatre_id,
-				theatre_name);
+		return Objects.hash(capacity, city_id, location, property_name, theatre_id, theatre_name);
 	}
 
 	@Override
@@ -107,9 +87,8 @@ public class Theatre implements Serializable {
 			return false;
 		Theatre other = (Theatre) obj;
 		return capacity == other.capacity && city_id == other.city_id && Objects.equals(location, other.location)
-				&& Objects.equals(property_name, other.property_name)
-				&& Objects.equals(seatCategoryCapacities, other.seatCategoryCapacities)
-				&& theatre_id == other.theatre_id && Objects.equals(theatre_name, other.theatre_name);
+				&& Objects.equals(property_name, other.property_name) && theatre_id == other.theatre_id
+				&& Objects.equals(theatre_name, other.theatre_name);
 	}
 
 }
