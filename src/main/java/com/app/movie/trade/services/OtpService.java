@@ -50,7 +50,7 @@ public class OtpService {
 	public void generateOtpToEmail(String email) throws UnsupportedEncodingException, MessagingException {
 		String otp = getRandomOtp(email);
 		String content = "Please find the OTP to login into Movie Trade App: " + otp;
-		//emailService.sendEmail(email, "OTP to login application", content);
+		emailService.sendEmail(email, "OTP to login application", content);
 	}
 
 	public boolean validateOtp(AuthRequest authRequest) throws ExecutionException, UserNotFoundException {

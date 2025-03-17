@@ -3,10 +3,13 @@ package com.app.movie.trade.entities;
 import java.time.LocalDate;
 import java.util.Objects;
 
+import com.app.movie.trade.helpers.EncryptDecryptHelper;
+import com.app.movie.trade.helpers.LongStringConverter;
 import com.app.movie.trade.validators.IsValidAccountNumber;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.annotation.Nonnull;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,11 +24,14 @@ public class BankAccountDetails {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	int bank_acc_details_id;
 	@Nonnull
+	@Convert(converter = EncryptDecryptHelper.class)
 	private String account_holder_name;
 	@Nonnull
 	@IsValidAccountNumber(message = "account number must be between 11 and 16 digits")
+	@Convert(converter = LongStringConverter.class)
 	private long account_number;
 	@Nonnull
+	@Convert(converter = EncryptDecryptHelper.class)
 	private String ifsc_code;
 	@Nonnull
 	private LocalDate created_date;

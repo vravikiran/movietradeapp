@@ -8,6 +8,15 @@ public class InvestmentRequest implements Serializable {
 	private int dealid;
 	private double amounttopay;
 	private long mobileno;
+	private int trans_digits;
+
+	public int getTrans_digits() {
+		return trans_digits;
+	}
+
+	public void setTrans_digits(int trans_digits) {
+		this.trans_digits = trans_digits;
+	}
 
 	public long getMobileno() {
 		return mobileno;
@@ -39,7 +48,7 @@ public class InvestmentRequest implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(amounttopay, dealid, mobileno);
+		return Objects.hash(amounttopay, dealid, mobileno, trans_digits);
 	}
 
 	@Override
@@ -52,12 +61,6 @@ public class InvestmentRequest implements Serializable {
 			return false;
 		InvestmentRequest other = (InvestmentRequest) obj;
 		return Double.doubleToLongBits(amounttopay) == Double.doubleToLongBits(other.amounttopay)
-				&& dealid == other.dealid && mobileno == other.mobileno;
+				&& dealid == other.dealid && mobileno == other.mobileno && trans_digits == other.trans_digits;
 	}
-
-	@Override
-	public String toString() {
-		return "InvestmentRequest [dealid=" + dealid + ", amounttopay=" + amounttopay + ", mobileno=" + mobileno + "]";
-	}
-	
 }

@@ -1,6 +1,10 @@
 package com.app.movie.trade.services;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +20,6 @@ import com.app.movie.trade.entities.InvestmentRequest;
 import com.app.movie.trade.entities.TicketSaleInfo;
 import com.app.movie.trade.enums.InvestmentStatusEnum;
 import com.app.movie.trade.exceptions.InvalidInvestmentStatusException;
-import com.app.movie.trade.exceptions.TransactionFailureException;
 import com.app.movie.trade.repositories.DealRepository;
 import com.app.movie.trade.repositories.InvestmentRepository;
 
@@ -32,11 +35,12 @@ public class InvestmentService {
 	PaymentService paymentService;
 	Logger logger = LoggerFactory.getLogger(InvestmentService.class);
 
-	public Investment createInvestment(InvestmentRequest investmentRequest) throws TransactionFailureException {
+	public Investment createInvestment(InvestmentRequest investmentRequest) {
 		logger.info("Creation of investment started for deal with id  ::" + investmentRequest.getDealid());
+		int dealId = investmentRequest.getDealid();
+		dealRepository.existsById(dealId);
 		Investment investment = null;
-		boolean isPaymentSuccess = true;
-		if (isPaymentSuccess) {
+		if (dealRepository.existsById(dealId)) {
 			investment = new Investment();
 			DealDetailInfo dealDetailInfo = dealRepository.getDealDetailedInfo(investmentRequest.getDealid());
 			investment.setDealid(investmentRequest.getDealid());
@@ -48,18 +52,20 @@ public class InvestmentService {
 			investment.setTheatre_id(dealDetailInfo.getTheatreid());
 			investment.setTheatre_name(dealDetailInfo.getTheatrename());
 			investment.setInvestedamt(dealDetailInfo.getTotaldealprice());
-			investment.setStatus(InvestmentStatusEnum.ONGOING.toString());
-			investment.setInvestment_id("MT" + String.valueOf(investmentRequest.getDealid()));
+			investment.setStatus(InvestmentStatusEnum.PROCESSING.toString());
+			investment.setInvestment_id(
+					"MT" + String.valueOf(investmentRequest.getDealid()) + "-" + LocalDateTime.now().toString());
 			investment.setHouse_capacity(dealDetailInfo.getCapacity());
 			investment.setCreated_date(LocalDate.now());
 			investment.setUpdated_date(LocalDate.now());
 			investment.setMobileno(investmentRequest.getMobileno());
-			updateDealStatus(investmentRequest.getDealid(), isPaymentSuccess);
+			investment.setTrans_digits(investmentRequest.getTrans_digits());
+			updateDealStatus(dealId, true);
 			investmentRepository.save(investment);
 			logger.info("Investment created successfully for deal with id :: " + investment.getDealid());
 			return investment;
 		} else {
-			throw new TransactionFailureException("transaction failed. Please retry payment");
+			throw new NoSuchElementException("Deal with given ID doesn't exists :: " + dealId);
 		}
 	}
 
@@ -87,5 +93,45 @@ public class InvestmentService {
 	private void updateDealStatus(int dealid, boolean isactive) {
 		logger.info("Successfully updated deal status for deal with id :: " + dealid + " , " + isactive);
 		dealService.updateDealStatus(isactive, dealid);
+	}
+
+	public void updateInvestmentStatus(String investment_id, Map<String, String> valuesToUpdate)
+			throws InvalidInvestmentStatusException {
+		logger.info("Updating status for invesetment with id :: " + investment_id);
+		String status = valuesToUpdate.get("status");
+		if (investmentRepository.existsById(investment_id.toUpperCase())) {
+			if (status != null && InvestmentStatusEnum.invStatusValues().containsKey(status.toUpperCase())) {
+				Investment investment = investmentRepository.getReferenceById(investment_id.toUpperCase());
+				investment.setStatus(status.toUpperCase());
+				investment.setUpdated_date(LocalDate.now());
+				investmentRepository.save(investment);
+			} else {
+				logger.info("Invalid investment status");
+				throw new InvalidInvestmentStatusException("not a valid Investment Status");
+			}
+		} else {
+			logger.info("No investment found with given id :: " + investment_id);
+			throw new NoSuchElementException("No investment found with given id :: " + investment_id);
+		}
+	}
+
+	public void deleteInvestmentById(String investment_id) {
+		if (investmentRepository.existsById(investment_id)) {
+			Investment investment = investmentRepository.getReferenceById(investment_id);
+			investment.setStatus(InvestmentStatusEnum.CANCELLED.name());
+			updateDealStatus(investment.getDealid(), false);
+			investment.setUpdated_date(LocalDate.now());
+		} else {
+			logger.info("No investment found with given id :: " + investment_id);
+			throw new NoSuchElementException("No investment found with given id :: " + investment_id);
+		}
+	}
+
+	public boolean verifyInvestmentForDeal(int dealId) {
+		return investmentRepository.getInvDetailsByDealid(dealId) != null ? true : false;
+	}
+
+	public List<Investment> getAllInvestments(long mobileno) {
+		return investmentRepository.getActiveInvestments(mobileno);
 	}
 }

@@ -86,4 +86,5 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<String> handleInvalidKycDetailsException(InvalidKycDetailsException exception) {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
 	}
+	
 }

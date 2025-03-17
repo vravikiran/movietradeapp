@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,47 +23,67 @@ import com.app.movie.trade.exceptions.DuplicateUserException;
 import com.app.movie.trade.exceptions.InvalidBankDetailsException;
 import com.app.movie.trade.exceptions.InvalidKycDetailsException;
 import com.app.movie.trade.exceptions.UserNotFoundException;
-import com.app.movie.trade.repositories.BankAccountDetailsRepository;
+import com.app.movie.trade.helpers.HashGenerator;
+import com.app.movie.trade.helpers.KmsUtil;
 import com.app.movie.trade.repositories.UserProfileRepository;
 
 @Service
 public class UserProfileService implements UserDetailsService {
 	@Autowired
 	UserProfileRepository userProfileRepository;
-	BankAccountDetailsRepository bankAccountDetailsRepository;
+	@Autowired
+	KmsUtil kmsUtil;
 	@Autowired
 	VerificationService verificationService;
 	public static String MOBILE_NO = "mobileno";
 	public static String EMAIL = "email";
 	public static String PAN_NO = "pan_number";
+	public static String PANNO_HASH = "panno_hash";
+	public static String EMAIL_HASH = "email_hash";
 	Logger logger = LoggerFactory.getLogger(UserProfileService.class);
 
 	public UserProfile createUserProfile(UserProfile userProfile, boolean isAdminUser) throws Exception {
 		logger.info("Creation of user profile started :: " + userProfile.toString());
 		UserProfile createdUserProfile = null;
-		if (isUserExistsWithEmail(userProfile.getEmail()) || isUserExistsWithPanNo(userProfile.getPan_number())
-				|| isUserExistsByMobileNumber(userProfile.getMobileno())) {
-			logger.info(
-					"Creation of user profile failed as user already exists with given mobile number or email or pan number");
-			throw new DuplicateUserException("user already exists with given mobile number or email or pan number");
-		} else {
-			if (verificationService.verifyPanno(userProfile.getPan_number())) {
-				userProfile.setCreated_date(LocalDate.now());
-				userProfile.setUpdated_date(LocalDate.now());
-				Role role = null;
-				if (isAdminUser) {
-					role = new Role(2, "ADMIN");
-				} else {
-					role = new Role(3, "INVESTOR");
-				}
-				userProfile.setRole(role);
-				createdUserProfile = userProfileRepository.save(userProfile);
-				logger.info(
-						"user profile created successfully for given mobile number :: " + userProfile.getMobileno());
-			} else {
-				logger.info("user profile creation failed due to invalid pan number");
-				throw new Exception("invalid pan number");
+		if (Long.valueOf(userProfile.getMobileno()) != null) {
+			if (isUserExistsByMobileNumber(userProfile.getMobileno())) {
+				logger.info("Creation of user profile failed as user already exists with given mobile number");
+				throw new DuplicateUserException("user already exists with given mobile number");
 			}
+		}
+		if (userProfile.getPan_number() != null) {
+			if (isUserExistsWithPanNo(userProfile.getPan_number())) {
+				logger.info("Creation of user profile failed as user already exists with given pan number");
+				throw new DuplicateUserException("user already exists with given pan number");
+			}
+		} else {
+			throw new DataIntegrityViolationException("PAN Number cannot be null");
+		}
+		if (userProfile.getEmail() != null) {
+			if (isUserExistsWithEmail(userProfile.getEmail())) {
+				logger.info("Creation of user profile failed as user already exists with given email");
+				throw new DuplicateUserException("user already exists with given email");
+			}
+		} else {
+			throw new DataIntegrityViolationException("Email cannot be null");
+		}
+		if (verificationService.verifyPanno(userProfile.getPan_number())) {
+			userProfile.setCreated_date(LocalDate.now());
+			userProfile.setUpdated_date(LocalDate.now());
+			Role role = null;
+			if (isAdminUser) {
+				role = new Role(2, "ADMIN");
+			} else {
+				role = new Role(3, "INVESTOR");
+			}
+			userProfile.setRole(role);
+			userProfile.setEmail_hash(HashGenerator.generateSHA256Hash(userProfile.getEmail()));
+			userProfile.setPanno_hash(HashGenerator.generateSHA256Hash(userProfile.getPan_number()));
+			createdUserProfile = userProfileRepository.save(userProfile);
+			logger.info("user profile created successfully for given mobile number :: " + userProfile.getMobileno());
+		} else {
+			logger.info("user profile creation failed due to invalid pan number");
+			throw new Exception("invalid pan number");
 		}
 		return createdUserProfile;
 	}
@@ -86,6 +107,8 @@ public class UserProfileService implements UserDetailsService {
 		if (userProfileRepository.existsById(mobileno)) {
 			userProfile = userProfileRepository.getReferenceById(mobileno);
 			if (verificationService.verifyBankDetails(bankAccountDetails)) {
+				bankAccountDetails.setCreated_date(LocalDate.now());
+				bankAccountDetails.setUpdated_date(LocalDate.now());
 				userProfile.setBankAccountDetails(bankAccountDetails);
 				userProfile.setBank_details_verified(true);
 				userProfile.setUpdated_date(LocalDate.now());
@@ -133,10 +156,29 @@ public class UserProfileService implements UserDetailsService {
 		UserProfile updatedUserProfile = null;
 		if (userProfileRepository.existsById(mobileNo)) {
 			userProfile = userProfileRepository.getReferenceById(mobileNo);
-			if ((valuesToUpdate.containsKey(PAN_NO) && isUserExistsWithPanNo(valuesToUpdate.get(PAN_NO)))
-					|| (valuesToUpdate.containsKey(EMAIL) && isUserExistsWithEmail(valuesToUpdate.get(EMAIL)))) {
-				logger.info("user already exists with given email or pan number");
-				throw new DuplicateUserException("user already exists with email or pan number");
+			if (valuesToUpdate.containsKey(PAN_NO)) {
+				if (valuesToUpdate.get(PAN_NO) != null) {
+					if (!isUserExistsWithPanNo(valuesToUpdate.get(PAN_NO))) {
+						valuesToUpdate.put(PAN_NO, HashGenerator.generateSHA256Hash(valuesToUpdate.get(PAN_NO)));
+					} else {
+						logger.info("user already exists with given pan number");
+						throw new DuplicateUserException("user already exists with given pan number");
+					}
+				} else {
+					throw new DataIntegrityViolationException("PAN Number cannot be null");
+				}
+			}
+			if (valuesToUpdate.containsKey(EMAIL)) {
+				if (valuesToUpdate.get(EMAIL) != null) {
+					if (!isUserExistsWithEmail(valuesToUpdate.get(EMAIL))) {
+						valuesToUpdate.put(EMAIL, HashGenerator.generateSHA256Hash(valuesToUpdate.get(EMAIL)));
+					} else {
+						logger.info("user already exists with given email");
+						throw new DuplicateUserException("user already exists with given email");
+					}
+				} else {
+					throw new DataIntegrityViolationException("email cannot be null");
+				}
 			}
 			try {
 				userProfile.updateValues(userProfile, valuesToUpdate);
@@ -157,16 +199,23 @@ public class UserProfileService implements UserDetailsService {
 		return userProfile.map(UserInfoDetails::new)
 				.orElseThrow(() -> new UsernameNotFoundException("User not found with given mobileNo " + username));
 	}
+	
+	public UserDetails loadUserByEmail(String email) throws UsernameNotFoundException {
+		Optional<UserProfile> userProfile = userProfileRepository.findByEmail(email);
+		return userProfile.map(UserInfoDetails::new)
+				.orElseThrow(() -> new UsernameNotFoundException("User not found with given email " + email));
+	}
 
-	private boolean isUserExistsByMobileNumber(long mobileNo) {
+
+	private boolean isUserExistsByMobileNumber(long mobileNo) throws DuplicateUserException {
 		return userProfileRepository.existsById(mobileNo);
 	}
 
 	private boolean isUserExistsWithEmail(String email) {
-		return userProfileRepository.existsByEmail(email);
+		return userProfileRepository.existsByEmail(HashGenerator.generateSHA256Hash(email));
 	}
 
 	private boolean isUserExistsWithPanNo(String panNumber) {
-		return userProfileRepository.existsByPanNumber(panNumber);
+		return userProfileRepository.existsByPanNumber(HashGenerator.generateSHA256Hash(panNumber));
 	}
 }

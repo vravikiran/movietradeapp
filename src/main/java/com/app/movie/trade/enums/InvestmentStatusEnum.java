@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public enum InvestmentStatusEnum {
-	ONGOING,COMPLETED;
+	PROCESSING,ONGOING,COMPLETED,CANCELLED;
 	public static Map<String,InvestmentStatusEnum> invStatusValues() {
 		return Stream.of(values()).collect(Collectors.toMap(InvestmentStatusEnum::name,Function.identity()));
 	}

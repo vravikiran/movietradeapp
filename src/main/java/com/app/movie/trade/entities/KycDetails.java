@@ -3,11 +3,12 @@ package com.app.movie.trade.entities;
 import java.time.LocalDate;
 import java.util.Objects;
 
-import com.app.movie.trade.validators.IsValidAadhaarNumber;
-import com.app.movie.trade.validators.IsValidPhoneNumber;
+import com.app.movie.trade.helpers.DateStringConverter;
+import com.app.movie.trade.helpers.EncryptDecryptHelper;
+import com.app.movie.trade.helpers.LongStringConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.annotation.Nonnull;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,17 +22,14 @@ public class KycDetails {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	int kyc_id;
-	@Nonnull
+	@Convert(converter = EncryptDecryptHelper.class)
 	private String first_name;
-	@Nonnull
+	@Convert(converter = EncryptDecryptHelper.class)
 	private String last_name;
-	@Nonnull
+	@Convert(converter = DateStringConverter.class)
 	private LocalDate date_of_birth;
-	@Nonnull
-	@IsValidAadhaarNumber(message="aadhar number must be 12 digits")
+	@Convert(converter = LongStringConverter.class)
 	private long aadhar_card_number;
-	@Nonnull
-	@IsValidPhoneNumber(message="Invalid mobile number")
 	private long mobile_no;
 	private String aadhar_image_front_url;
 	private String aadhar_image_back_url;

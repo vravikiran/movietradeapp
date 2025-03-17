@@ -4,8 +4,13 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class Investment {
@@ -27,22 +32,32 @@ public class Investment {
 	private LocalDate created_date;
 	private LocalDate updated_date;
 	private long mobileno;
-	
+	private int trans_digits;
+
+	@JsonIgnore
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "transaction_id", referencedColumnName = "transaction_id")
+	private Transaction transaction;
 
 	public Investment() {
 		super();
 	}
-	
+
+	public int getTrans_digits() {
+		return trans_digits;
+	}
+
+	public void setTrans_digits(int trans_digits) {
+		this.trans_digits = trans_digits;
+	}
 
 	public long getMobileno() {
 		return mobileno;
 	}
 
-
 	public void setMobileno(long mobileno) {
 		this.mobileno = mobileno;
 	}
-
 
 	public int getHouse_capacity() {
 		return house_capacity;
@@ -172,11 +187,19 @@ public class Investment {
 		this.updated_date = updated_date;
 	}
 
+	public Transaction getTransaction() {
+		return transaction;
+	}
+
+	public void setTransaction(Transaction transaction) {
+		this.transaction = transaction;
+	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(created_date, dealid, earnedamt, house_capacity, investedamt, investment_id, movie_name,
-				movie_release_date, movieid, showdate, showtime, status, theatre_id, theatre_name, tickets_sold,
-				updated_date);
+		return Objects.hash(created_date, dealid, earnedamt, house_capacity, investedamt, investment_id, mobileno,
+				movie_name, movie_release_date, movieid, showdate, showtime, status, theatre_id, theatre_name,
+				tickets_sold, trans_digits, transaction, updated_date);
 	}
 
 	@Override
@@ -192,11 +215,13 @@ public class Investment {
 				&& Double.doubleToLongBits(earnedamt) == Double.doubleToLongBits(other.earnedamt)
 				&& house_capacity == other.house_capacity
 				&& Double.doubleToLongBits(investedamt) == Double.doubleToLongBits(other.investedamt)
-				&& Objects.equals(investment_id, other.investment_id) && Objects.equals(movie_name, other.movie_name)
+				&& Objects.equals(investment_id, other.investment_id) && mobileno == other.mobileno
+				&& Objects.equals(movie_name, other.movie_name)
 				&& Objects.equals(movie_release_date, other.movie_release_date) && movieid == other.movieid
 				&& Objects.equals(showdate, other.showdate) && Objects.equals(showtime, other.showtime)
 				&& Objects.equals(status, other.status) && theatre_id == other.theatre_id
 				&& Objects.equals(theatre_name, other.theatre_name) && tickets_sold == other.tickets_sold
+				&& trans_digits == other.trans_digits && Objects.equals(transaction, other.transaction)
 				&& Objects.equals(updated_date, other.updated_date);
 	}
 

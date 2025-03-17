@@ -24,6 +24,7 @@ public class Deal implements Serializable {
 	private LocalTime showtime;
 	private double total_dealprice;
 	private double total_actualprice;
+	private String actual_ticket_price;
 	private double maxprofit;
 	private int city_id;
 	private boolean is_invested;
@@ -32,6 +33,14 @@ public class Deal implements Serializable {
 	@JsonIgnore
 	private LocalDate updated_date;
 	
+	public String getActual_ticket_price() {
+		return actual_ticket_price;
+	}
+
+	public void setActual_ticket_price(String actual_ticket_price) {
+		this.actual_ticket_price = actual_ticket_price;
+	}
+
 	public LocalDate getCreated_date() {
 		return created_date;
 	}

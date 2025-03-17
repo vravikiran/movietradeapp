@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -45,7 +46,7 @@ public class DealService {
 	private static final Integer EXPIRE_MIN = 5;
 
 	public Deal createDeal(Deal deal) {
-		logger.info("Creation of deal started ::"+deal.toString());
+		logger.info("Creation of deal started ::" + deal.toString());
 		Theatre theatre = theatreRepository.getReferenceById(deal.getTheatre_id());
 		deal.setCity_id(theatre.getCity_id());
 		deal.setCreated_date(LocalDate.now());
@@ -83,7 +84,7 @@ public class DealService {
 				logger.info("count of deals grouped by movieid :: getDealsByMovie " + dealResults.size());
 				resultOutput = pagingDealsByMovie(dealResults, pageable.getPageSize(), pageable.getPageNumber());
 			} else {
-				logger.info("no deals found with given details :: "+dealRequestObj);
+				logger.info("no deals found with given details :: " + dealRequestObj);
 			}
 			redisTemplate.opsForValue().set(dealRequestObj, dealResults);
 			redisTemplate.expire(dealRequestObj, EXPIRE_MIN, TimeUnit.MINUTES);
@@ -149,7 +150,7 @@ public class DealService {
 	}
 
 	public List<LocalDate> getDealDatesByMovie(int movieid) {
-		logger.info("Fetching deal dates for a  movie with id :: "+movieid);
+		logger.info("Fetching deal dates for a  movie with id :: " + movieid);
 		return dealRepository.getDealDatesByMovie(movieid);
 	}
 
@@ -174,16 +175,21 @@ public class DealService {
 	}
 
 	public void updateDealStatus(boolean isActive, int dealid) {
-		logger.info("Updating deal status with id :: "+dealid);
+		logger.info("Updating deal status with id :: " + dealid);
 		Deal deal = dealRepository.getReferenceById(dealid);
-		deal.setIs_invested(isActive);
-		deal.setUpdated_date(LocalDate.now());
-		dealRepository.save(deal);
-		logger.info("deal status updated successfully");
+		if (deal != null) {
+			deal.setIs_invested(isActive);
+			deal.setUpdated_date(LocalDate.now());
+			dealRepository.save(deal);
+			logger.info("deal status updated successfully");
+		} else {
+			logger.info("Deal with given ID doesn't exists :: " + dealid);
+			throw new NoSuchElementException("Deal with given ID doesn't exists :: " + dealid);
+		}
 	}
 
 	public Page<TheatreDeal> getDealsByTheatre(TheatreDealRequest dealRequest, Pageable pageable) {
-		logger.info("Fetching deals by theatre for a given date :: "+dealRequest.toString());
+		logger.info("Fetching deals by theatre for a given date :: " + dealRequest.toString());
 		Page<TheatreDeal> pageTheatreDeals = null;
 		if (pageable.getPageNumber() == 0) {
 
@@ -201,7 +207,7 @@ public class DealService {
 			pageTheatreDeals = (Page<TheatreDeal>) pagingDealsByTheatre(cachedTheatreDeals, pageable.getPageSize(),
 					pageable.getPageNumber());
 		}
-		logger.info("completed fetching deals by theatre with page and size ::"+pageable.toString());
+		logger.info("completed fetching deals by theatre with page and size ::" + pageable.toString());
 		return pageTheatreDeals;
 	}
 
@@ -229,19 +235,25 @@ public class DealService {
 				theatreDeals.size());
 		return pageResponse;
 	}
-	
+
 	public List<LocalDate> getDealDatesByTheatre(int theatre_id) {
-		logger.info("fetching deal dates of a theatre with id: "+theatre_id);
+		logger.info("fetching deal dates of a theatre with id: " + theatre_id);
 		return dealRepository.getDealDatesByTheatre(theatre_id);
 	}
-	
+
 	public void updateDealPrice(int dealid, double dealPrice) {
-		logger.info("Started updating total deal price for a deal with id :: "+dealid);
+		logger.info("Started updating total deal price for a deal with id :: " + dealid);
 		Deal deal = dealRepository.getReferenceById(dealid);
-		deal.setUpdated_date(LocalDate.now());
-		deal.setTotal_dealprice(dealPrice);
-		deal.setMaxprofit(dealPrice);
-		dealRepository.save(deal);
-		logger.info("Successfully updated total deal price for a deal with id :: "+dealid);
+		if (deal != null) {
+			deal.setUpdated_date(LocalDate.now());
+			deal.setTotal_dealprice(dealPrice);
+			deal.setMaxprofit(dealPrice);
+			dealRepository.save(deal);
+			logger.info("Successfully updated total deal price for a deal with id :: " + dealid);
+		} else {
+			logger.info("Deal with given ID doesn't exists :: " + dealid);
+			throw new NoSuchElementException("Deal with given ID doesn't exists :: " + dealid);
+		}
+
 	}
 }

@@ -14,7 +14,7 @@ import jakarta.mail.internet.MimeMessage;
 
 @Service
 public class EmailService {
-	/*@Value("${from.email.address}")
+	@Value("${from.email.address}")
 	private String fromEmailAddress;
 
 	@Autowired
@@ -31,5 +31,5 @@ public class EmailService {
 		helper.setText(content, true);
 		mailSender.send(message);
 	}
-*/
+
 }

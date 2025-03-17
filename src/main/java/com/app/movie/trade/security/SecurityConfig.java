@@ -25,7 +25,7 @@ public class SecurityConfig {
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws AccessDeniedException, Exception {
 		return http.csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(requests -> requests
-						.requestMatchers("/user/**", "/auth/**", "/theatre/**", "/deal/**", "/cities/**", "/investment/**","/userprofile/**","/config/**")
+						.requestMatchers("/user/**", "/auth/**", "/theatre/**", "/deal/**", "/cities/**", "/investment/**","/userprofile/**","/config/**","/transaction/**")
 						.permitAll().requestMatchers(HttpMethod.GET, "/movie/**").permitAll().anyRequest()
 						.authenticated())
 				.sessionManagement(

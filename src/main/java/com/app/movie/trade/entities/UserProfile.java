@@ -5,17 +5,21 @@ import java.util.Objects;
 
 import org.hibernate.validator.constraints.Range;
 
+import com.app.movie.trade.helpers.DateStringConverter;
+import com.app.movie.trade.helpers.EncryptDecryptHelper;
 import com.app.movie.trade.validators.IsValidPhoneNumber;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import jakarta.annotation.Nonnull;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Table(name = "user_profile")
 @Entity
@@ -23,23 +27,43 @@ import jakarta.persistence.Table;
 public class UserProfile extends PatchableObject {
 	@Id
 	@Range(min = 1000000000L, max = 9999999999L)
-	@IsValidPhoneNumber(message="not a valid mobile number")
+	@IsValidPhoneNumber(message = "not a valid mobile number")
 	private long mobileno;
-	@Nonnull
+	@NotBlank(message = "full name cannot be null or blank")
+	@Convert(converter = EncryptDecryptHelper.class)
 	private String full_name;
-	@Nonnull
+	@Convert(converter = EncryptDecryptHelper.class)
 	private String pan_number;
-	@Nonnull
+	@Convert(converter = EncryptDecryptHelper.class)
 	private String email;
 	private String user_image_url;
-	@Nonnull
 	private LocalDate created_date;
-	@Nonnull
 	private LocalDate updated_date;
-	@Nonnull
+	@NotNull(message="Date of birth cannot be null")
+	@Convert(converter = DateStringConverter.class)
 	private LocalDate date_of_birth;
 	private boolean aadhar_verified;
 	private boolean bank_details_verified;
+	@JsonIgnore
+	private String email_hash;
+	@JsonIgnore
+	private String panno_hash;
+
+	public String getEmail_hash() {
+		return email_hash;
+	}
+
+	public void setEmail_hash(String email_hash) {
+		this.email_hash = email_hash;
+	}
+
+	public String getPanno_hash() {
+		return panno_hash;
+	}
+
+	public void setPanno_hash(String panno_hash) {
+		this.panno_hash = panno_hash;
+	}
 
 	public boolean isBank_details_verified() {
 		return bank_details_verified;
@@ -161,7 +185,8 @@ public class UserProfile extends PatchableObject {
 	@Override
 	public int hashCode() {
 		return Objects.hash(aadhar_verified, bankAccountDetails, bank_details_verified, created_date, date_of_birth,
-				email, full_name, kycDetails, mobileno, pan_number, role, updated_date, user_image_url);
+				email, email_hash, full_name, kycDetails, mobileno, pan_number, panno_hash, role, updated_date,
+				user_image_url);
 	}
 
 	@Override
@@ -177,14 +202,11 @@ public class UserProfile extends PatchableObject {
 				&& bank_details_verified == other.bank_details_verified
 				&& Objects.equals(created_date, other.created_date)
 				&& Objects.equals(date_of_birth, other.date_of_birth) && Objects.equals(email, other.email)
-				&& Objects.equals(full_name, other.full_name) && Objects.equals(kycDetails, other.kycDetails)
-				&& mobileno == other.mobileno && Objects.equals(pan_number, other.pan_number)
+				&& Objects.equals(email_hash, other.email_hash) && Objects.equals(full_name, other.full_name)
+				&& Objects.equals(kycDetails, other.kycDetails) && mobileno == other.mobileno
+				&& Objects.equals(pan_number, other.pan_number) && Objects.equals(panno_hash, other.panno_hash)
 				&& Objects.equals(role, other.role) && Objects.equals(updated_date, other.updated_date)
 				&& Objects.equals(user_image_url, other.user_image_url);
-	}
-
-	public UserProfile() {
-		super();
 	}
 
 	@Override

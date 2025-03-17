@@ -17,10 +17,10 @@ import com.app.movie.trade.entities.MovieDealCount;
 @Repository
 @RedisHash
 public interface DealRepository extends JpaRepository<Deal, Integer> {
-	@Query(value = "select d as deal from Deal d where d.city_id = :city_id and d.showdate =:showdate and d.movieid = :movieid and d.is_invested=false")
+	@Query(value = "select d as deal from Deal d where d.city_id = :city_id and d.showdate =:showdate and d.movieid = :movieid")
 	public List<Deal> getDealsByMovieId(int movieid, LocalDate showdate, int city_id);
 
-	@Query(value = "select  m.name as name,m.language as language,m.duration as duration,m.cbfc_rating as cbfcrating,m.release_date as releasedate,m.imageurl as imageurl,m.format_type as formattype,m.genre as genre, count(*) as count, d.movieid as movieid from Deal d ,Movie m  where d.is_invested = false and d.city_id = :city_id and d.movieid = m.movieid and (:language IS NULL or m.language = :language) and (:name IS NULL or m.name like %:name% ) group by d.movieid")
+	@Query(value = "select  m.name as name,m.language as language,m.duration as duration,m.cbfc_rating as cbfcrating,m.release_date as releasedate,m.imageurl as imageurl,m.format_type as formattype,m.genre as genre, count(*) as count, d.movieid as movieid from Deal d ,Movie m  where d.is_invested = false and d.city_id = :city_id and d.movieid = m.movieid and (:language IS NULL or m.language = :language) and (:name IS NULL or m.name like %:name% ) group by d.movieid order by m.release_date")
 	public List<MovieDealCount> getMovieDealCountByCity(@Param("city_id") int city_id, @Param("name") String name,
 			@Param("language") String language);
 

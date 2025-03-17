@@ -46,6 +46,20 @@ public class JwtHelper {
 		}  else 
 			return false;
 	}
+	
+	public boolean vaildateEmailToken(String token) {
+		String email = null;
+		try {
+		 email = extractMobileNo(token);
+		} catch(SignatureException exception) {
+			System.out.println(exception.getMessage());
+		}
+		if(email != null) {
+		UserDetails userDetails = userProfileService.loadUserByEmail(email);
+		return userDetails.getUsername().equals(email) && isTokenExpired(token);
+		}  else 
+			return false;
+	}
 
 	public Claims getTokenBody(String token) {
 		Claims claims = Jwts.parser().verifyWith(keyGenerator.getSecretKey()).build().parseSignedClaims(token)
@@ -54,6 +68,10 @@ public class JwtHelper {
 	}
 
 	public String extractMobileNo(String token) {
+		return getTokenBody(token).getSubject();
+	}
+	
+	public String extractEmail(String token) {
 		return getTokenBody(token).getSubject();
 	}
 
