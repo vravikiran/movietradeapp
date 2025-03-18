@@ -37,10 +37,8 @@ public class InvestmentService {
 
 	public Investment createInvestment(InvestmentRequest investmentRequest) {
 		logger.info("Creation of investment started for deal with id  ::" + investmentRequest.getDealid());
-		int dealId = investmentRequest.getDealid();
-		dealRepository.existsById(dealId);
 		Investment investment = null;
-		if (dealRepository.existsById(dealId)) {
+		if (dealRepository.existsById(investmentRequest.getDealid())) {
 			investment = new Investment();
 			DealDetailInfo dealDetailInfo = dealRepository.getDealDetailedInfo(investmentRequest.getDealid());
 			investment.setDealid(investmentRequest.getDealid());
@@ -60,12 +58,12 @@ public class InvestmentService {
 			investment.setUpdated_date(LocalDate.now());
 			investment.setMobileno(investmentRequest.getMobileno());
 			investment.setTrans_digits(investmentRequest.getTrans_digits());
-			updateDealStatus(dealId, true);
+			updateDealStatus(investmentRequest.getDealid(), true);
 			investmentRepository.save(investment);
 			logger.info("Investment created successfully for deal with id :: " + investment.getDealid());
 			return investment;
 		} else {
-			throw new NoSuchElementException("Deal with given ID doesn't exists :: " + dealId);
+			throw new NoSuchElementException("Deal with given ID doesn't exists :: " + investmentRequest.getDealid());
 		}
 	}
 

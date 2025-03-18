@@ -1,20 +1,10 @@
 package com.app.movie.trade.services;
 
-import java.io.UnsupportedEncodingException;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 
 @Service
 public class EmailService {
-	@Value("${from.email.address}")
+	/*@Value("${from.email.address}")
 	private String fromEmailAddress;
 
 	@Autowired
@@ -30,6 +20,6 @@ public class EmailService {
 		helper.setSubject(subject);
 		helper.setText(content, true);
 		mailSender.send(message);
-	}
+	}*/
 
 }

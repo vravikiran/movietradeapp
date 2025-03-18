@@ -18,8 +18,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 @Table(name = "user_profile")
 @Entity
@@ -29,7 +27,6 @@ public class UserProfile extends PatchableObject {
 	@Range(min = 1000000000L, max = 9999999999L)
 	@IsValidPhoneNumber(message = "not a valid mobile number")
 	private long mobileno;
-	@NotBlank(message = "full name cannot be null or blank")
 	@Convert(converter = EncryptDecryptHelper.class)
 	private String full_name;
 	@Convert(converter = EncryptDecryptHelper.class)
@@ -39,7 +36,6 @@ public class UserProfile extends PatchableObject {
 	private String user_image_url;
 	private LocalDate created_date;
 	private LocalDate updated_date;
-	@NotNull(message="Date of birth cannot be null")
 	@Convert(converter = DateStringConverter.class)
 	private LocalDate date_of_birth;
 	private boolean aadhar_verified;

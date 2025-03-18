@@ -8,7 +8,6 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -55,36 +54,29 @@ public class UserProfileService implements UserDetailsService {
 			if (isUserExistsWithPanNo(userProfile.getPan_number())) {
 				logger.info("Creation of user profile failed as user already exists with given pan number");
 				throw new DuplicateUserException("user already exists with given pan number");
+			} else {
+				userProfile.setPanno_hash(HashGenerator.generateSHA256Hash(userProfile.getPan_number()));
 			}
-		} else {
-			throw new DataIntegrityViolationException("PAN Number cannot be null");
 		}
 		if (userProfile.getEmail() != null) {
 			if (isUserExistsWithEmail(userProfile.getEmail())) {
 				logger.info("Creation of user profile failed as user already exists with given email");
 				throw new DuplicateUserException("user already exists with given email");
-			}
-		} else {
-			throw new DataIntegrityViolationException("Email cannot be null");
-		}
-		if (verificationService.verifyPanno(userProfile.getPan_number())) {
-			userProfile.setCreated_date(LocalDate.now());
-			userProfile.setUpdated_date(LocalDate.now());
-			Role role = null;
-			if (isAdminUser) {
-				role = new Role(2, "ADMIN");
 			} else {
-				role = new Role(3, "INVESTOR");
+				userProfile.setEmail_hash(HashGenerator.generateSHA256Hash(userProfile.getEmail()));
 			}
-			userProfile.setRole(role);
-			userProfile.setEmail_hash(HashGenerator.generateSHA256Hash(userProfile.getEmail()));
-			userProfile.setPanno_hash(HashGenerator.generateSHA256Hash(userProfile.getPan_number()));
-			createdUserProfile = userProfileRepository.save(userProfile);
-			logger.info("user profile created successfully for given mobile number :: " + userProfile.getMobileno());
-		} else {
-			logger.info("user profile creation failed due to invalid pan number");
-			throw new Exception("invalid pan number");
 		}
+		userProfile.setCreated_date(LocalDate.now());
+		userProfile.setUpdated_date(LocalDate.now());
+		Role role = null;
+		if (isAdminUser) {
+			role = new Role(2, "ADMIN");
+		} else {
+			role = new Role(3, "INVESTOR");
+		}
+		userProfile.setRole(role);
+		createdUserProfile = userProfileRepository.save(userProfile);
+		logger.info("user profile created successfully for given mobile number :: " + userProfile.getMobileno());
 		return createdUserProfile;
 	}
 
@@ -159,25 +151,23 @@ public class UserProfileService implements UserDetailsService {
 			if (valuesToUpdate.containsKey(PAN_NO)) {
 				if (valuesToUpdate.get(PAN_NO) != null) {
 					if (!isUserExistsWithPanNo(valuesToUpdate.get(PAN_NO))) {
-						valuesToUpdate.put(PAN_NO, HashGenerator.generateSHA256Hash(valuesToUpdate.get(PAN_NO)));
+						valuesToUpdate.put(PAN_NO, valuesToUpdate.get(PAN_NO));
+						valuesToUpdate.put(PANNO_HASH, HashGenerator.generateSHA256Hash(valuesToUpdate.get(PANNO_HASH)));
 					} else {
 						logger.info("user already exists with given pan number");
 						throw new DuplicateUserException("user already exists with given pan number");
 					}
-				} else {
-					throw new DataIntegrityViolationException("PAN Number cannot be null");
 				}
 			}
 			if (valuesToUpdate.containsKey(EMAIL)) {
 				if (valuesToUpdate.get(EMAIL) != null) {
 					if (!isUserExistsWithEmail(valuesToUpdate.get(EMAIL))) {
-						valuesToUpdate.put(EMAIL, HashGenerator.generateSHA256Hash(valuesToUpdate.get(EMAIL)));
+						valuesToUpdate.put(EMAIL, valuesToUpdate.get(EMAIL));
+						valuesToUpdate.put(EMAIL_HASH, HashGenerator.generateSHA256Hash(valuesToUpdate.get(EMAIL)));
 					} else {
 						logger.info("user already exists with given email");
 						throw new DuplicateUserException("user already exists with given email");
 					}
-				} else {
-					throw new DataIntegrityViolationException("email cannot be null");
 				}
 			}
 			try {
@@ -199,15 +189,14 @@ public class UserProfileService implements UserDetailsService {
 		return userProfile.map(UserInfoDetails::new)
 				.orElseThrow(() -> new UsernameNotFoundException("User not found with given mobileNo " + username));
 	}
-	
+
 	public UserDetails loadUserByEmail(String email) throws UsernameNotFoundException {
 		Optional<UserProfile> userProfile = userProfileRepository.findByEmail(email);
 		return userProfile.map(UserInfoDetails::new)
 				.orElseThrow(() -> new UsernameNotFoundException("User not found with given email " + email));
 	}
 
-
-	private boolean isUserExistsByMobileNumber(long mobileNo) throws DuplicateUserException {
+	public boolean isUserExistsByMobileNumber(long mobileNo) throws DuplicateUserException {
 		return userProfileRepository.existsById(mobileNo);
 	}
 
