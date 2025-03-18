@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import com.app.movie.trade.entities.AuthRequest;
 import com.app.movie.trade.entities.EmailAuthRequest;
 import com.app.movie.trade.entities.UserProfile;
+import com.app.movie.trade.exceptions.UnauthorizedUserException;
+import com.app.movie.trade.repositories.ValidUserAccountRepository;
 import com.app.movie.trade.security.TwilioConfig;
 import com.twilio.exception.ApiException;
 import com.twilio.rest.api.v2010.account.Message;
@@ -33,14 +35,20 @@ public class OtpService {
 	private static final String TEST_MOBILE_NO = "9739418251";
 	@Autowired
 	UserProfileService userProfileService;
+	@Autowired
+	ValidUserAccountRepository validUserAccountRepository;
 
-	public void generateOtp(String mobileNo) throws ApiException {
+	public void generateOtp(String mobileNo) throws ApiException, UnauthorizedUserException {
 		logger.info("started generating otp for given mobile number :: " + mobileNo);
+		if(mobileNo != null && validUserAccountRepository.existsById(Long.valueOf(mobileNo))) {
 		if (mobileNo != TEST_MOBILE_NO) {
 			PhoneNumber to = new PhoneNumber("+91" + mobileNo);
 			String otpMessage = "Please find the OTP to login into Movie Trade App: " + getRandomOtp(mobileNo);
 			Message.creator(to, twilioConfig.getServiceId(), otpMessage).create();
 			logger.info("otp generated successfully for given mobile number :: " + mobileNo + " otp " + otpMessage);
+		}
+		} else {
+			throw new UnauthorizedUserException("User with given mobile number is not authorized to access the app");
 		}
 	}
 

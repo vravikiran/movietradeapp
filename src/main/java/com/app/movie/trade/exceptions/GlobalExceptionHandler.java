@@ -87,4 +87,9 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
 	}
 	
+	@ExceptionHandler(UnauthorizedUserException.class)
+	public ResponseEntity<String> handleUnauthorizedUserException(UnauthorizedUserException exception) {
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exception.getMessage());
+	}
+	
 }

@@ -2,6 +2,7 @@ package com.app.movie.trade.services;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -74,7 +75,16 @@ public class InvestmentService {
 			logger.info("Invalid investment status");
 			throw new InvalidInvestmentStatusException("not a valid Investment Status");
 		} else {
-			return investmentRepository.getInvestmentsByStatus(status, mobileno, pageable);
+			List<String> statuses = null;
+			if (status != null && status.equalsIgnoreCase(InvestmentStatusEnum.ONGOING.name())) {
+				statuses = new ArrayList<>();
+				statuses.add(InvestmentStatusEnum.ONGOING.name());
+				statuses.add(InvestmentStatusEnum.PROCESSING.name());
+			} else if (status != null && status.equalsIgnoreCase(InvestmentStatusEnum.COMPLETED.name())) {
+				statuses = new ArrayList<>();
+				statuses.add(status);
+			}
+			return investmentRepository.getInvestmentsByStatus(statuses, mobileno, pageable);
 		}
 	}
 

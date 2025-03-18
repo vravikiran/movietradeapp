@@ -17,8 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.app.movie.trade.entities.AuthRequest;
 import com.app.movie.trade.entities.EmailAuthRequest;
+import com.app.movie.trade.exceptions.UnauthorizedUserException;
 import com.app.movie.trade.helpers.JwtHelper;
 import com.app.movie.trade.services.OtpService;
+import com.twilio.exception.ApiException;
 
 import jakarta.mail.MessagingException;
 
@@ -32,7 +34,7 @@ public class AuthController {
 	Logger logger = LoggerFactory.getLogger(AuthController.class);
 
 	@GetMapping("/generateOtp")
-	public ResponseEntity<HttpStatus> generateOtp(@RequestParam String mobileNo) {
+	public ResponseEntity<HttpStatus> generateOtp(@RequestParam String mobileNo) throws ApiException, UnauthorizedUserException {
 		logger.info("otp generated for given mobile number:: " + mobileNo);
 		otpService.generateOtp(mobileNo);
 		return ResponseEntity.ok(HttpStatus.OK);
