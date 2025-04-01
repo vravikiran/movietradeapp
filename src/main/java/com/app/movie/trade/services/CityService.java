@@ -22,7 +22,7 @@ public class CityService {
 	}
 	
 	public City createCity(City city) {
-		if(cityRepository.verifyCityByName(city.getCity_name()))
+		if(!cityRepository.verifyCityByName(city.getCity_name()))
 		return cityRepository.save(city);
 		else 
 			return null;
