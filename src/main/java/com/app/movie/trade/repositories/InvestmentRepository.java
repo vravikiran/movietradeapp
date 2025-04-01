@@ -13,7 +13,7 @@ import com.app.movie.trade.entities.Investment;
 
 @Repository
 public interface InvestmentRepository extends JpaRepository<Investment, String> {
-	@Query(value = "select inv from Investment inv where inv.mobileno = :mobileno and (:statuses IS NULL or inv.status in :statuses) order by inv.updated_date desc")
+	@Query(value = "select inv from Investment inv where inv.mobileno = :mobileno and (:statuses IS NULL or inv.status in :statuses) order by inv.created_date desc")
 	public Page<Investment> getInvestmentsByStatus(@Param("statuses") List<String> statuses,
 			@Param("mobileno") long mobileno, Pageable pageable);
 
