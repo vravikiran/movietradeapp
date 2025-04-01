@@ -19,10 +19,12 @@ import com.app.movie.trade.entities.DealDetailInfo;
 import com.app.movie.trade.entities.Investment;
 import com.app.movie.trade.entities.InvestmentRequest;
 import com.app.movie.trade.entities.TicketSaleInfo;
+import com.app.movie.trade.entities.Transaction;
 import com.app.movie.trade.enums.InvestmentStatusEnum;
 import com.app.movie.trade.exceptions.InvalidInvestmentStatusException;
 import com.app.movie.trade.repositories.DealRepository;
 import com.app.movie.trade.repositories.InvestmentRepository;
+import com.app.movie.trade.repositories.TransactionRepository;
 
 @Service
 public class InvestmentService {
@@ -34,6 +36,8 @@ public class InvestmentService {
 	DealService dealService;
 	@Autowired
 	PaymentService paymentService;
+	@Autowired
+	TransactionRepository transactionRepository;
 	Logger logger = LoggerFactory.getLogger(InvestmentService.class);
 
 	public Investment createInvestment(InvestmentRequest investmentRequest) {
@@ -58,8 +62,13 @@ public class InvestmentService {
 			investment.setCreated_date(LocalDate.now());
 			investment.setUpdated_date(LocalDate.now());
 			investment.setMobileno(investmentRequest.getMobileno());
-			investment.setTrans_digits(investmentRequest.getTrans_digits());
-			updateDealStatus(investmentRequest.getDealid(), true);
+			investment.setTransaction_id(investmentRequest.getTransaction_id());
+			Transaction transaction = new Transaction();
+			transaction.setTransaction_id(investmentRequest.getTransaction_id());
+			transaction.setInvestment_id(investment.getInvestment_id());
+			transaction.setTransaction_date(LocalDate.now());
+			transaction.setAmount(investmentRequest.getAmounttopay());
+			transactionRepository.save(transaction);
 			investmentRepository.save(investment);
 			logger.info("Investment created successfully for deal with id :: " + investment.getDealid());
 			return investment;
@@ -136,7 +145,8 @@ public class InvestmentService {
 	}
 
 	public boolean verifyInvestmentForDeal(int dealId) {
-		return investmentRepository.getInvDetailsByDealid(dealId) != null ? true : false;
+		boolean isInvExistsForDeal = dealRepository.isInvExistsForDeal(dealId);
+		return isInvExistsForDeal && investmentRepository.isInvExistsForDeal(dealId);
 	}
 
 	public List<Investment> getAllInvestments(long mobileno) {

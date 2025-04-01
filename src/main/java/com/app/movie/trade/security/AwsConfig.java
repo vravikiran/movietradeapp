@@ -3,9 +3,6 @@ package com.app.movie.trade.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.awssdk.services.sts.model.AssumeRoleRequest;
@@ -30,13 +27,6 @@ public class AwsConfig {
 
 	@Bean
 	S3Client s3Client() {
-		
-		Credentials awsBasicCredentials = credentials();
-		StaticCredentialsProvider staticCredentialsProvider = StaticCredentialsProvider
-				.create(AwsSessionCredentials.create(awsBasicCredentials.accessKeyId(),
-						awsBasicCredentials.secretAccessKey(), awsBasicCredentials.sessionToken()));
-		S3Client s3Client = S3Client.builder().region(Region.AP_SOUTH_1).credentialsProvider(staticCredentialsProvider)
-				.build();
-		return s3Client;
+		return S3Client.builder().build();
 	}
 }

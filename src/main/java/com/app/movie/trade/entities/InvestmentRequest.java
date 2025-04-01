@@ -8,14 +8,14 @@ public class InvestmentRequest implements Serializable {
 	private int dealid;
 	private double amounttopay;
 	private long mobileno;
-	private int trans_digits;
+	private String transaction_id;
 
-	public int getTrans_digits() {
-		return trans_digits;
+	public String getTransaction_id() {
+		return transaction_id;
 	}
 
-	public void setTrans_digits(int trans_digits) {
-		this.trans_digits = trans_digits;
+	public void setTransaction_id(String transaction_id) {
+		this.transaction_id = transaction_id;
 	}
 
 	public long getMobileno() {
@@ -48,7 +48,7 @@ public class InvestmentRequest implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(amounttopay, dealid, mobileno, trans_digits);
+		return Objects.hash(amounttopay, dealid, mobileno, transaction_id);
 	}
 
 	@Override
@@ -61,6 +61,8 @@ public class InvestmentRequest implements Serializable {
 			return false;
 		InvestmentRequest other = (InvestmentRequest) obj;
 		return Double.doubleToLongBits(amounttopay) == Double.doubleToLongBits(other.amounttopay)
-				&& dealid == other.dealid && mobileno == other.mobileno && trans_digits == other.trans_digits;
+				&& dealid == other.dealid && mobileno == other.mobileno
+				&& Objects.equals(transaction_id, other.transaction_id);
 	}
+
 }

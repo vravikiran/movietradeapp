@@ -11,6 +11,6 @@ public interface DealDetailInfo {
 	 String getTheatrename();
 	 LocalDate getShowdate();
 	 LocalTime getShowtime();
-	 int getTotaldealprice();
+	 double getTotaldealprice();
 	 int getCapacity();
 }

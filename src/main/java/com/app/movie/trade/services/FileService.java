@@ -31,23 +31,16 @@ public class FileService {
 	@Autowired
 	S3Client s3Client;
 
-	public String uploadProfileImage(MultipartFile file, long mobileno, String bucketName, boolean isNew)
+	public String uploadProfileImage(MultipartFile file, long mobileno, String bucketName)
 			throws IOException, UserNotFoundException {
 		logger.info("Upload image for user profile with mobile number ::" + mobileno);
 		String key = Long.valueOf(mobileno) + "/" + LocalDateTime.now() + "_" + file.getOriginalFilename();
 		URL url = imageUploadFromMobile(file, bucketName, key);
 		logger.info("url of the uploaded image :: " + url.toString());
-		if (!isNew) {
-			UserProfile userProfile = null;
-			if (userProfileRepository.existsById(mobileno)) {
-				userProfile = userProfileRepository.getReferenceById(mobileno);
-				userProfile.setUser_image_url(url.toString());
-				userProfile.setUpdated_date(LocalDate.now());
-				userProfileRepository.save(userProfile);
-			} else {
-				throw new UserNotFoundException();
-			}
-		}
+		UserProfile userProfile = userProfileRepository.getReferenceById(mobileno);
+		userProfile.setUser_image_url(url.toString());
+		userProfile.setUpdated_date(LocalDate.now());
+		userProfileRepository.save(userProfile);
 		logger.info("profile image uploaded successfully");
 		return url.toString();
 	}
@@ -58,6 +51,14 @@ public class FileService {
 		String key = Long.valueOf(mobileno) + "/" + LocalDateTime.now() + "_" + file.getOriginalFilename();
 		URL url = imageUploadFromMobile(file, bucketName, key);
 		logger.info("kyc image uploaded successfully");
+		return url.toString();
+	}
+
+	public String uploadMovieImage(MultipartFile file, String bucketName)
+			throws S3Exception, AwsServiceException, SdkClientException, IOException {
+		logger.info("Upload movie image started");
+		URL url = imageUploadFromMobile(file, bucketName, file.getOriginalFilename());
+		logger.info("movie image uploaded successfully");
 		return url.toString();
 	}
 

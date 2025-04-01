@@ -99,10 +99,10 @@ public class UserProfileController {
 
 	@PostMapping(path = "/image/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<String> uploadProfileImage(@RequestPart("photo") MultipartFile file,
-			@RequestParam long mobileno, @RequestParam(required = false, defaultValue = "true") boolean isNew)
+			@RequestParam long mobileno)
 			throws IOException, UserNotFoundException {
 		logger.info("uploading profile image for user profile with mobile number :: " + mobileno);
-		String url = fileService.uploadProfileImage(file, mobileno, profileBucket, isNew);
+		String url = fileService.uploadProfileImage(file, mobileno, profileBucket);
 		logger.info("profile image uploaded successfully for user profile");
 		return ResponseEntity.ok(url);
 	}

@@ -19,7 +19,7 @@ import com.app.movie.trade.entities.AuthRequest;
 import com.app.movie.trade.entities.EmailAuthRequest;
 import com.app.movie.trade.exceptions.UnauthorizedUserException;
 import com.app.movie.trade.helpers.JwtHelper;
-import com.app.movie.trade.services.OtpService;
+import com.app.movie.trade.services.MessageService;
 import com.twilio.exception.ApiException;
 
 import jakarta.mail.MessagingException;
@@ -28,7 +28,7 @@ import jakarta.mail.MessagingException;
 @RequestMapping("/auth")
 public class AuthController {
 	@Autowired
-	private OtpService otpService;
+	private MessageService otpService;
 	@Autowired
 	JwtHelper jwtHelper;
 	Logger logger = LoggerFactory.getLogger(AuthController.class);

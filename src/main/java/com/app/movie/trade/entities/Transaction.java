@@ -3,12 +3,9 @@ package com.app.movie.trade.entities;
 import java.time.LocalDate;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
@@ -19,16 +16,11 @@ public class Transaction {
 	private String transaction_id;
 	@Nonnull
 	private String status;
-	private String bank_name;
 	@Nonnull
 	private LocalDate transaction_date;
 	@NotNull(message = "investment id cannot be null")
 	private String investment_id;
 	private double amount;
-
-	@OneToOne(mappedBy = "transaction")
-	@JsonIgnore
-	private Investment Investment;
 
 	public Transaction() {
 		super();
@@ -48,14 +40,6 @@ public class Transaction {
 
 	public void setStatus(String status) {
 		this.status = status;
-	}
-
-	public String getBank_name() {
-		return bank_name;
-	}
-
-	public void setBank_name(String bank_name) {
-		this.bank_name = bank_name;
 	}
 
 	public LocalDate getTransaction_date() {
@@ -82,17 +66,9 @@ public class Transaction {
 		this.amount = amount;
 	}
 
-	public Investment getInvestment() {
-		return Investment;
-	}
-
-	public void setInvestment(Investment investment) {
-		Investment = investment;
-	}
-
 	@Override
 	public int hashCode() {
-		return Objects.hash(Investment, amount, bank_name, investment_id, status, transaction_date, transaction_id);
+		return Objects.hash(amount, investment_id, status, transaction_date, transaction_id);
 	}
 
 	@Override
@@ -104,10 +80,9 @@ public class Transaction {
 		if (getClass() != obj.getClass())
 			return false;
 		Transaction other = (Transaction) obj;
-		return Objects.equals(Investment, other.Investment)
-				&& Double.doubleToLongBits(amount) == Double.doubleToLongBits(other.amount)
-				&& Objects.equals(bank_name, other.bank_name) && Objects.equals(investment_id, other.investment_id)
-				&& Objects.equals(status, other.status) && Objects.equals(transaction_date, other.transaction_date)
+		return Double.doubleToLongBits(amount) == Double.doubleToLongBits(other.amount)
+				&& Objects.equals(investment_id, other.investment_id) && Objects.equals(status, other.status)
+				&& Objects.equals(transaction_date, other.transaction_date)
 				&& Objects.equals(transaction_id, other.transaction_id);
 	}
 

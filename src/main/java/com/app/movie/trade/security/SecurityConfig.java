@@ -26,7 +26,7 @@ public class SecurityConfig {
 		return http.csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(requests -> requests
 						.requestMatchers("/user/**", "/auth/**", "/theatre/**", "/deal/**", "/cities/**", "/investment/**","/userprofile/**","/config/**","/transaction/**")
-						.permitAll().requestMatchers(HttpMethod.GET, "/movie/**").permitAll().anyRequest()
+						.permitAll().requestMatchers(HttpMethod.GET, "/movie/**").permitAll().requestMatchers(HttpMethod.POST, "/movie/image/upload").permitAll().anyRequest()
 						.authenticated())
 				.sessionManagement(
 						sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

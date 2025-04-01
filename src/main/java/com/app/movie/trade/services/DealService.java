@@ -1,6 +1,8 @@
 package com.app.movie.trade.services;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -64,8 +66,14 @@ public class DealService {
 		List<DealResult> dealResults = new ArrayList<>();
 		Page<DealResult> resultOutput = null;
 		if (pageable.getPageNumber() == 0) {
-			List<Deal> deals = dealRepository.getDealsByMovieId(dealRequestObj.getMovieid(), dealRequestObj.getDate(),
-					dealRequestObj.getCity_id());
+			List<Deal> deals = null;
+			if (dealRequestObj.getDate().equals(LocalDate.now())) {
+				deals = dealRepository.getDealsByMovieId(dealRequestObj.getMovieid(), dealRequestObj.getDate(),
+						dealRequestObj.getCity_id(), LocalTime.now().truncatedTo(ChronoUnit.MINUTES));
+			} else {
+				deals = dealRepository.getDealsByMovieId(dealRequestObj.getMovieid(), dealRequestObj.getDate(),
+						dealRequestObj.getCity_id(), null);
+			}
 
 			if (!deals.isEmpty()) {
 				Map<Integer, List<Deal>> dealsByTheatre = deals.stream()
@@ -130,8 +138,11 @@ public class DealService {
 				+ dealCountRequest.getLanguage());
 		Page<MovieDealCountPojo> pageList = null;
 		if (pageable.getPageNumber() == 0) {
+			logger.info("local date :: " + LocalDate.now().toString() + " Local Time :: "
+					+ LocalTime.now().truncatedTo(ChronoUnit.MINUTES).toString());
 			List<MovieDealCount> dealCountByMovieList = dealRepository.getMovieDealCountByCity(
-					dealCountRequest.getCity_id(), dealCountRequest.getName(), dealCountRequest.getLanguage());
+					dealCountRequest.getCity_id(), dealCountRequest.getName(), dealCountRequest.getLanguage(),
+					LocalDate.now(), LocalTime.now().truncatedTo(ChronoUnit.MINUTES));
 			List<MovieDealCountPojo> countPojos = convertMovieDealCountToPojo(dealCountByMovieList);
 			pageList = toPage(countPojos, pageable.getPageSize(), pageable.getPageNumber());
 			redisTemplate.opsForValue().set(dealCountRequest, countPojos);
@@ -145,13 +156,13 @@ public class DealService {
 				pageList = toPage(cacheDealCountByMovies, pageable.getPageSize(), pageable.getPageNumber());
 			}
 		}
-		logger.info("Request to fetch number of deals by date and city,langauge, movie name");
+		logger.info("Request to fetch number of deals by date and city,langauge, movie name completed");
 		return pageList;
 	}
 
 	public List<LocalDate> getDealDatesByMovie(int movieid) {
 		logger.info("Fetching deal dates for a  movie with id :: " + movieid);
-		return dealRepository.getDealDatesByMovie(movieid);
+		return dealRepository.getDealDatesByMovie(movieid, LocalDate.now());
 	}
 
 	public List<MovieDealCountPojo> convertMovieDealCountToPojo(List<MovieDealCount> dealCountByMovieList) {
@@ -192,9 +203,14 @@ public class DealService {
 		logger.info("Fetching deals by theatre for a given date :: " + dealRequest.toString());
 		Page<TheatreDeal> pageTheatreDeals = null;
 		if (pageable.getPageNumber() == 0) {
-
-			List<Deal> deals = dealRepository.getDealsByTheatreAndDate(dealRequest.getTheatre_id(),
-					dealRequest.getDate());
+			List<Deal> deals = null;
+			if (dealRequest.getDate().equals(LocalDate.now())) {
+				deals = dealRepository.getDealsByTheatreAndDate(dealRequest.getTheatre_id(), dealRequest.getDate(),
+						LocalTime.now().truncatedTo(ChronoUnit.MINUTES));
+			} else {
+				deals = dealRepository.getDealsByTheatreAndDate(dealRequest.getTheatre_id(), dealRequest.getDate(),
+						null);
+			}
 			Map<Integer, List<Deal>> dealsByMovie = deals.stream().collect(Collectors.groupingBy(Deal::getMovieid));
 			List<TheatreDeal> theatreDeals = convertDealsByMovieMapToTheatreDeals(dealsByMovie);
 			pageTheatreDeals = (Page<TheatreDeal>) pagingDealsByTheatre(theatreDeals, pageable.getPageSize(),
@@ -238,7 +254,7 @@ public class DealService {
 
 	public List<LocalDate> getDealDatesByTheatre(int theatre_id) {
 		logger.info("fetching deal dates of a theatre with id: " + theatre_id);
-		return dealRepository.getDealDatesByTheatre(theatre_id);
+		return dealRepository.getDealDatesByTheatre(theatre_id, LocalDate.now());
 	}
 
 	public void updateDealPrice(int dealid, double dealPrice) {

@@ -20,4 +20,11 @@ public class CityService {
 		logger.info("Fetching list of cities");
 		return cityRepository.findAll();
 	}
+	
+	public City createCity(City city) {
+		if(cityRepository.verifyCityByName(city.getCity_name()))
+		return cityRepository.save(city);
+		else 
+			return null;
+	}
 }

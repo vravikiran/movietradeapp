@@ -87,8 +87,8 @@ public class InvestmentController {
 		logger.info("Verifying if any investment exists for given dealId :: "+dealId);
 		boolean isExists = investmentService.verifyInvestmentForDeal(dealId);
 		if (isExists) {
-			logger.info("investment exists for given dealId :: "+dealId);
-			return ResponseEntity.status(211).body("Deal is already booked");
+			logger.info("investment exists/is in progress for given dealId :: "+dealId);
+			return ResponseEntity.status(211).body("Deal is already booked/investment is in progress for given deal :: "+dealId);
 		} else {
 			logger.info("No investment exists for given dealId :: "+dealId);
 			return ResponseEntity.status(212).body("No investment exists for given deal id");

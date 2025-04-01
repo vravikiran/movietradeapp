@@ -4,13 +4,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 
 @Entity
 public class Investment {
@@ -32,23 +27,11 @@ public class Investment {
 	private LocalDate created_date;
 	private LocalDate updated_date;
 	private long mobileno;
-	private int trans_digits;
 
-	@JsonIgnore
-	@OneToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "transaction_id", referencedColumnName = "transaction_id")
-	private Transaction transaction;
+	private String transaction_id;
 
 	public Investment() {
 		super();
-	}
-
-	public int getTrans_digits() {
-		return trans_digits;
-	}
-
-	public void setTrans_digits(int trans_digits) {
-		this.trans_digits = trans_digits;
 	}
 
 	public long getMobileno() {
@@ -187,19 +170,19 @@ public class Investment {
 		this.updated_date = updated_date;
 	}
 
-	public Transaction getTransaction() {
-		return transaction;
+	public String getTransaction_id() {
+		return transaction_id;
 	}
 
-	public void setTransaction(Transaction transaction) {
-		this.transaction = transaction;
+	public void setTransaction_id(String transaction_id) {
+		this.transaction_id = transaction_id;
 	}
 
 	@Override
 	public int hashCode() {
 		return Objects.hash(created_date, dealid, earnedamt, house_capacity, investedamt, investment_id, mobileno,
 				movie_name, movie_release_date, movieid, showdate, showtime, status, theatre_id, theatre_name,
-				tickets_sold, trans_digits, transaction, updated_date);
+				tickets_sold, transaction_id, updated_date);
 	}
 
 	@Override
@@ -221,7 +204,7 @@ public class Investment {
 				&& Objects.equals(showdate, other.showdate) && Objects.equals(showtime, other.showtime)
 				&& Objects.equals(status, other.status) && theatre_id == other.theatre_id
 				&& Objects.equals(theatre_name, other.theatre_name) && tickets_sold == other.tickets_sold
-				&& trans_digits == other.trans_digits && Objects.equals(transaction, other.transaction)
+				&& Objects.equals(transaction_id, other.transaction_id)
 				&& Objects.equals(updated_date, other.updated_date);
 	}
 
