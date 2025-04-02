@@ -1,6 +1,7 @@
 package com.app.movie.trade.services;
 
-import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.NoSuchElementException;
 
@@ -58,7 +59,7 @@ public class TransacationService {
 			if (TransactionStatusEnum.valueOf(transaction.getStatus()) != null) {
 				Investment investment = investmentRepository
 						.getReferenceById(transaction.getInvestment_id().toUpperCase());
-				transaction.setTransaction_date(LocalDate.now());
+				transaction.setTransaction_date(ZonedDateTime.now(ZoneId.of("Asia/Calcutta")).toLocalDate());
 				investment.setStatus(InvestmentStatusEnum.ONGOING.name());
 				dealService.updateDealStatus(true, investment.getDealid());
 				return transaction;

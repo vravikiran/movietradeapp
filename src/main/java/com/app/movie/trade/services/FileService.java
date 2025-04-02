@@ -2,8 +2,9 @@ package com.app.movie.trade.services;
 
 import java.io.IOException;
 import java.net.URL;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,7 @@ public class FileService {
 		logger.info("url of the uploaded image :: " + url.toString());
 		UserProfile userProfile = userProfileRepository.getReferenceById(mobileno);
 		userProfile.setUser_image_url(url.toString());
-		userProfile.setUpdated_date(LocalDate.now());
+		userProfile.setUpdated_date(ZonedDateTime.now(ZoneId.of("Asia/Calcutta")).toLocalDate());
 		userProfileRepository.save(userProfile);
 		logger.info("profile image uploaded successfully");
 		return url.toString();

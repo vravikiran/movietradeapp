@@ -2,6 +2,8 @@ package com.app.movie.trade.services;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,8 +53,8 @@ public class DealService {
 		logger.info("Creation of deal started ::" + deal.toString());
 		Theatre theatre = theatreRepository.getReferenceById(deal.getTheatre_id());
 		deal.setCity_id(theatre.getCity_id());
-		deal.setCreated_date(LocalDate.now());
-		deal.setUpdated_date(LocalDate.now());
+		deal.setCreated_date(ZonedDateTime.now(ZoneId.of("Asia/Calcutta")).toLocalDate());
+		deal.setUpdated_date(ZonedDateTime.now(ZoneId.of("Asia/Calcutta")).toLocalDate());
 		Deal createdDeal = dealRepository.save(deal);
 		logger.info("deal created successfully");
 		return createdDeal;
@@ -67,9 +69,9 @@ public class DealService {
 		Page<DealResult> resultOutput = null;
 		if (pageable.getPageNumber() == 0) {
 			List<Deal> deals = null;
-			if (dealRequestObj.getDate().equals(LocalDate.now())) {
+			if (dealRequestObj.getDate().equals(ZonedDateTime.now(ZoneId.of("Asia/Calcutta")).toLocalDate())) {
 				deals = dealRepository.getDealsByMovieId(dealRequestObj.getMovieid(), dealRequestObj.getDate(),
-						dealRequestObj.getCity_id(), LocalTime.now().truncatedTo(ChronoUnit.MINUTES));
+						dealRequestObj.getCity_id(), LocalTime.now(ZoneId.of("Asia/Calcutta")).truncatedTo(ChronoUnit.MINUTES));
 			} else {
 				deals = dealRepository.getDealsByMovieId(dealRequestObj.getMovieid(), dealRequestObj.getDate(),
 						dealRequestObj.getCity_id(), null);
@@ -138,11 +140,11 @@ public class DealService {
 				+ dealCountRequest.getLanguage());
 		Page<MovieDealCountPojo> pageList = null;
 		if (pageable.getPageNumber() == 0) {
-			logger.info("local date :: " + LocalDate.now().toString() + " Local Time :: "
-					+ LocalTime.now().truncatedTo(ChronoUnit.MINUTES).toString());
+			logger.info("local date :: " + ZonedDateTime.now(ZoneId.of("Asia/Calcutta")).toLocalDate().toString() + " Local Time :: "
+					+ LocalTime.now(ZoneId.of("Asia/Calcutta")).truncatedTo(ChronoUnit.MINUTES).toString());
 			List<MovieDealCount> dealCountByMovieList = dealRepository.getMovieDealCountByCity(
 					dealCountRequest.getCity_id(), dealCountRequest.getName(), dealCountRequest.getLanguage(),
-					LocalDate.now(), LocalTime.now().truncatedTo(ChronoUnit.MINUTES));
+					ZonedDateTime.now(ZoneId.of("Asia/Calcutta")).toLocalDate(), LocalTime.now(ZoneId.of("Asia/Calcutta")).truncatedTo(ChronoUnit.MINUTES));
 			List<MovieDealCountPojo> countPojos = convertMovieDealCountToPojo(dealCountByMovieList);
 			pageList = toPage(countPojos, pageable.getPageSize(), pageable.getPageNumber());
 			redisTemplate.opsForValue().set(dealCountRequest, countPojos);
@@ -161,8 +163,8 @@ public class DealService {
 	}
 
 	public List<LocalDate> getDealDatesByMovie(int movieid) {
-		logger.info("Fetching deal dates for a  movie with id :: " + movieid);
-		return dealRepository.getDealDatesByMovie(movieid, LocalDate.now());
+		logger.info("Fetching deal dates for a  movie with id :: " + movieid+" date ::"+ZonedDateTime.now(ZoneId.of("Asia/Calcutta")).toLocalDate());
+		return dealRepository.getDealDatesByMovie(movieid, ZonedDateTime.now(ZoneId.of("Asia/Calcutta")).toLocalDate());
 	}
 
 	public List<MovieDealCountPojo> convertMovieDealCountToPojo(List<MovieDealCount> dealCountByMovieList) {
@@ -190,7 +192,7 @@ public class DealService {
 		Deal deal = dealRepository.getReferenceById(dealid);
 		if (deal != null) {
 			deal.setIs_invested(isActive);
-			deal.setUpdated_date(LocalDate.now());
+			deal.setUpdated_date(ZonedDateTime.now(ZoneId.of("Asia/Calcutta")).toLocalDate());
 			dealRepository.save(deal);
 			logger.info("deal status updated successfully");
 		} else {
@@ -204,9 +206,9 @@ public class DealService {
 		Page<TheatreDeal> pageTheatreDeals = null;
 		if (pageable.getPageNumber() == 0) {
 			List<Deal> deals = null;
-			if (dealRequest.getDate().equals(LocalDate.now())) {
+			if (dealRequest.getDate().equals(ZonedDateTime.now(ZoneId.of("Asia/Calcutta")).toLocalDate())) {
 				deals = dealRepository.getDealsByTheatreAndDate(dealRequest.getTheatre_id(), dealRequest.getDate(),
-						LocalTime.now().truncatedTo(ChronoUnit.MINUTES));
+						LocalTime.now(ZoneId.of("Asia/Calcutta")).truncatedTo(ChronoUnit.MINUTES));
 			} else {
 				deals = dealRepository.getDealsByTheatreAndDate(dealRequest.getTheatre_id(), dealRequest.getDate(),
 						null);
@@ -254,14 +256,14 @@ public class DealService {
 
 	public List<LocalDate> getDealDatesByTheatre(int theatre_id) {
 		logger.info("fetching deal dates of a theatre with id: " + theatre_id);
-		return dealRepository.getDealDatesByTheatre(theatre_id, LocalDate.now());
+		return dealRepository.getDealDatesByTheatre(theatre_id, ZonedDateTime.now(ZoneId.of("Asia/Calcutta")).toLocalDate());
 	}
 
 	public void updateDealPrice(int dealid, double dealPrice) {
 		logger.info("Started updating total deal price for a deal with id :: " + dealid);
 		Deal deal = dealRepository.getReferenceById(dealid);
 		if (deal != null) {
-			deal.setUpdated_date(LocalDate.now());
+			deal.setUpdated_date(ZonedDateTime.now(ZoneId.of("Asia/Calcutta")).toLocalDate());
 			deal.setTotal_dealprice(dealPrice);
 			deal.setMaxprofit(dealPrice);
 			dealRepository.save(deal);

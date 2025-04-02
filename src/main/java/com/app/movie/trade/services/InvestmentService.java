@@ -1,7 +1,8 @@
 package com.app.movie.trade.services;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -59,14 +60,14 @@ public class InvestmentService {
 			investment.setInvestment_id(
 					"MT" + String.valueOf(investmentRequest.getDealid()) + "-" + LocalDateTime.now().toString());
 			investment.setHouse_capacity(dealDetailInfo.getCapacity());
-			investment.setCreated_date(LocalDate.now());
-			investment.setUpdated_date(LocalDate.now());
+			investment.setCreated_date(ZonedDateTime.now(ZoneId.of("Asia/Calcutta")).toLocalDate());
+			investment.setUpdated_date(ZonedDateTime.now(ZoneId.of("Asia/Calcutta")).toLocalDate());
 			investment.setMobileno(investmentRequest.getMobileno());
 			investment.setTransaction_id(investmentRequest.getTransaction_id());
 			Transaction transaction = new Transaction();
 			transaction.setTransaction_id(investmentRequest.getTransaction_id());
 			transaction.setInvestment_id(investment.getInvestment_id());
-			transaction.setTransaction_date(LocalDate.now());
+			transaction.setTransaction_date(ZonedDateTime.now(ZoneId.of("Asia/Calcutta")).toLocalDate());
 			transaction.setAmount(investmentRequest.getAmounttopay());
 			transactionRepository.save(transaction);
 			investmentRepository.save(investment);
@@ -120,7 +121,7 @@ public class InvestmentService {
 			if (status != null && InvestmentStatusEnum.invStatusValues().containsKey(status.toUpperCase())) {
 				Investment investment = investmentRepository.getReferenceById(investment_id.toUpperCase());
 				investment.setStatus(status.toUpperCase());
-				investment.setUpdated_date(LocalDate.now());
+				investment.setUpdated_date(ZonedDateTime.now(ZoneId.of("Asia/Calcutta")).toLocalDate());
 				investmentRepository.save(investment);
 			} else {
 				logger.info("Invalid investment status");
@@ -137,7 +138,7 @@ public class InvestmentService {
 			Investment investment = investmentRepository.getReferenceById(investment_id);
 			investment.setStatus(InvestmentStatusEnum.CANCELLED.name());
 			updateDealStatus(investment.getDealid(), false);
-			investment.setUpdated_date(LocalDate.now());
+			investment.setUpdated_date(ZonedDateTime.now(ZoneId.of("Asia/Calcutta")).toLocalDate());
 		} else {
 			logger.info("No investment found with given id :: " + investment_id);
 			throw new NoSuchElementException("No investment found with given id :: " + investment_id);

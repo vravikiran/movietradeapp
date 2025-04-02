@@ -1,6 +1,7 @@
 package com.app.movie.trade.services;
 
-import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -66,8 +67,8 @@ public class UserProfileService implements UserDetailsService {
 				userProfile.setEmail_hash(HashGenerator.generateSHA256Hash(userProfile.getEmail()));
 			}
 		}
-		userProfile.setCreated_date(LocalDate.now());
-		userProfile.setUpdated_date(LocalDate.now());
+		userProfile.setCreated_date(ZonedDateTime.now(ZoneId.of("Asia/Calcutta")).toLocalDate());
+		userProfile.setUpdated_date(ZonedDateTime.now(ZoneId.of("Asia/Calcutta")).toLocalDate());
 		Role role = null;
 		if (isAdminUser) {
 			role = new Role(2, "ADMIN");
@@ -99,11 +100,11 @@ public class UserProfileService implements UserDetailsService {
 		if (userProfileRepository.existsById(mobileno)) {
 			userProfile = userProfileRepository.getReferenceById(mobileno);
 			if (verificationService.verifyBankDetails(bankAccountDetails)) {
-				bankAccountDetails.setCreated_date(LocalDate.now());
-				bankAccountDetails.setUpdated_date(LocalDate.now());
+				bankAccountDetails.setCreated_date(ZonedDateTime.now(ZoneId.of("Asia/Calcutta")).toLocalDate());
+				bankAccountDetails.setUpdated_date(ZonedDateTime.now(ZoneId.of("Asia/Calcutta")).toLocalDate());
 				userProfile.setBankAccountDetails(bankAccountDetails);
 				userProfile.setBank_details_verified(true);
-				userProfile.setUpdated_date(LocalDate.now());
+				userProfile.setUpdated_date(ZonedDateTime.now(ZoneId.of("Asia/Calcutta")).toLocalDate());
 				userProfileRepository.save(userProfile);
 				logger.info(
 						"bank account details are verified successfully and added it to user profile with mobile number :: "
@@ -128,7 +129,7 @@ public class UserProfileService implements UserDetailsService {
 			if (verificationService.verifyKycDetails(kycDetails)) {
 				userProfile.setKycDetails(kycDetails);
 				userProfile.setAadhar_verified(true);
-				userProfile.setUpdated_date(LocalDate.now());
+				userProfile.setUpdated_date(ZonedDateTime.now(ZoneId.of("Asia/Calcutta")).toLocalDate());
 				userProfileRepository.save(userProfile);
 				logger.info("kyc details are verified successfully and added it to user profile with mobile number :: "
 						+ mobileno);
@@ -172,7 +173,7 @@ public class UserProfileService implements UserDetailsService {
 			}
 			try {
 				userProfile.updateValues(userProfile, valuesToUpdate);
-				userProfile.setUpdated_date(LocalDate.now());
+				userProfile.setUpdated_date(ZonedDateTime.now(ZoneId.of("Asia/Calcutta")).toLocalDate());
 			} catch (NoSuchElementException exception) {
 				throw new NoSuchElementException("one or more fields are not valid");
 			}
