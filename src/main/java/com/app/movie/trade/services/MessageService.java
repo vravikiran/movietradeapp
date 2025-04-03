@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +35,8 @@ public class MessageService {
 	@Autowired
 	EmailService emailService;
 	private static final String TEST_MOBILE_NO = "9739418251";
-	private static final String SELLER_NO = "8639183083";
+	@Value("${seller_number}")
+	private String SELLER_NO;
 	@Autowired
 	UserProfileService userProfileService;
 	@Autowired
@@ -42,12 +44,13 @@ public class MessageService {
 
 	public void generateOtp(String mobileNo) throws ApiException, UnauthorizedUserException {
 		logger.info("started generating otp for given mobile number :: " + mobileNo);
+		logger.info("seller number :: "+SELLER_NO);
 		if (mobileNo != null && validUserAccountRepository.existsById(Long.valueOf(mobileNo))) {
 			if (mobileNo != TEST_MOBILE_NO) {
 				PhoneNumber to = new PhoneNumber("+91" + mobileNo);
 				String otpMessage = "Please find the OTP to login into Movie Trade App: " + getRandomOtp(mobileNo);
 				Message.creator(to, twilioConfig.getServiceId(), otpMessage).create();
-				logger.info("otp generated successfully for given mobile number :: " + mobileNo + " otp " + otpMessage);
+				logger.info("otp generated successfully for given mobile number :: " + mobileNo);
 			}
 		} else {
 			throw new UnauthorizedUserException("User with given mobile number is not authorized to access the app");
@@ -73,9 +76,7 @@ public class MessageService {
 	}
 
 	public boolean validateOtp(AuthRequest authRequest) throws Exception {
-		logger.info("validating otp started with  given mobile number and otp :: " + authRequest.toString());
-		logger.info("validating otp started with  given mobile number " + authRequest.getMobileNo() + " otp :: "
-				+ authRequest.getOtp());
+		logger.info("validating otp started with  given mobile number " + authRequest.getMobileNo());
 		if (redisTemplate.opsForValue().get(authRequest.getMobileNo()) != null
 				&& redisTemplate.opsForValue().get(authRequest.getMobileNo()).equals(authRequest.getOtp())) {
 			if (!userProfileService.isUserExistsByMobileNumber(Long.valueOf(authRequest.getMobileNo()))) {

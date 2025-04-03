@@ -26,6 +26,7 @@ import com.app.movie.trade.repositories.DealRepository;
 import com.app.movie.trade.repositories.InvestmentRepository;
 import com.app.movie.trade.repositories.TransactionDetailsRepository;
 import com.app.movie.trade.repositories.TransactionRepository;
+import com.app.movie.trade.security.PhonepeConfig;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,6 +49,8 @@ public class TransacationService {
 	MessageService messageService;
 	@Autowired
 	TransactionDetailsRepository transactionDetailsRepository;
+	@Autowired
+	PhonepeConfig phonepeConfig;
 	Logger logger = LoggerFactory.getLogger(TransacationService.class);
 
 	public Transaction createTransaction(Transaction transaction)
@@ -176,10 +179,9 @@ public class TransacationService {
 		logger.info("Verification of transaction details started");
 		logger.info("response body :: " + responseBody);
 		logger.info("xVerify ::" + xVerify);
-		String merchantId = "M22LC1E47PCGZ";
-		String saltKey = "515f5b48-4292-445a-963b-759afeb2855f";
-		Integer saltIndex = 1;
-		PhonePePaymentClient phonePeClient = new PhonePePaymentClient(merchantId, saltKey, saltIndex, Env.PROD, true);
+		PhonePePaymentClient phonePeClient = new PhonePePaymentClient(phonepeConfig.getPhonePeMerchantId(),
+				phonepeConfig.getPhonePeSaltKey(), Integer.valueOf(phonepeConfig.getPhonePeSaltIndex()), Env.PROD,
+				true);
 		logger.info("verification of transaction details completed");
 		return phonePeClient.verifyResponse(xVerify, responseBody);
 	}
