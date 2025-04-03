@@ -9,7 +9,7 @@ public class PhonepeConfig {
 	private String phonePeMerchantId;
 	@Value("${phonepe.salt.index}")
 	private String phonePeSaltIndex;
-	@Value("${phonepe.trans.key}")
+	@Value("${phonepe.salt.key}")
 	private String phonePeSaltKey;
 
 	public String getPhonePeSaltIndex() {
