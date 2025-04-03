@@ -34,7 +34,7 @@ public class MessageService {
 	Logger logger = LoggerFactory.getLogger(MessageService.class);
 	@Autowired
 	EmailService emailService;
-	private static final String TEST_MOBILE_NO = "9739418251";
+	private static final String TEST_MOBILE_NO = "XXXXXXX";
 	@Value("${seller_number}")
 	private String SELLER_NO;
 	@Autowired
