@@ -9,7 +9,6 @@ public class KmsConfig {
 	private String key;
 	public KmsConfig() {
 		super();
-		System.out.println(key);
 	}
 
 	public String getKey() {

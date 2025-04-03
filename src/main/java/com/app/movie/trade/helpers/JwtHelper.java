@@ -4,6 +4,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -20,6 +22,7 @@ public class JwtHelper {
 	UserProfileService userProfileService;
 	@Autowired
 	SecretKeyGenerator keyGenerator;
+	Logger logger = LoggerFactory.getLogger(JwtHelper.class);
 
 	public String generateToken(String mobileNo) {
 		Instant now = Instant.now();
@@ -38,7 +41,7 @@ public class JwtHelper {
 		try {
 		 mobileNo = extractMobileNo(token);
 		} catch(SignatureException exception) {
-			System.out.println(exception.getMessage());
+			logger.info(exception.getMessage());
 		}
 		if(mobileNo != null) {
 		UserDetails userDetails = userProfileService.loadUserByUsername(mobileNo);
@@ -52,7 +55,7 @@ public class JwtHelper {
 		try {
 		 email = extractMobileNo(token);
 		} catch(SignatureException exception) {
-			System.out.println(exception.getMessage());
+			logger.info(exception.getMessage());
 		}
 		if(email != null) {
 		UserDetails userDetails = userProfileService.loadUserByEmail(email);

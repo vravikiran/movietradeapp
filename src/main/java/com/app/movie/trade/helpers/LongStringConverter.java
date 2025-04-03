@@ -13,7 +13,6 @@ public class LongStringConverter implements AttributeConverter<Long, String> {
 	@Override
 	public String convertToDatabaseColumn(Long attribute) {
 	String value =	Long.toString(attribute.longValue());
-	System.out.println(value);
 		return kmsUtil.kmsEncrypt(value);
 	}
 
