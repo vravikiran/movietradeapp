@@ -104,7 +104,7 @@ public class MessageService {
 	public void sendInvDetailToSeller(DealDetailInfo dealDetailInfo) {
 		PhoneNumber to = new PhoneNumber("+91" + SELLER_NO);
 		String transMessage = "Deal purchased \n" + dealDetailInfo.getMoviename() + "\n" + dealDetailInfo.getShowdate()
-				+ "\n" + dealDetailInfo.getShowtime() + "\n" + dealDetailInfo.getTotaldealprice();
+				+ "\n" + dealDetailInfo.getShowtime() + " Show \n"+"Price Rs " + dealDetailInfo.getTotaldealprice();
 		Message.creator(to, twilioConfig.getServiceId(), transMessage).create();
 		logger.info("sent deal purchased details to seller");
 	}

@@ -78,10 +78,8 @@ public class TransacationService {
 	public void savePaymentDetails(PaymentResponse pgResponse) throws JsonMappingException, JsonProcessingException {
 		logger.info("Updating the transaction details received from phonepe");
 		String res = new String(Base64.getDecoder().decode(pgResponse.getResponse()));
-		logger.info("decoded response received from phonepe :: " + res);
 		ObjectMapper objectMapper = new ObjectMapper();
 		PaymentInformation paymentInformation = objectMapper.readValue(res, PaymentInformation.class);
-		logger.info("payment information :: " + paymentInformation.toString());
 		String transactionId = paymentInformation.getData().getMerchantTransactionId();
 		Transaction transaction = transactionRepository.getReferenceById(transactionId);
 		transaction.setStatus(paymentInformation.getData().getState());
@@ -177,7 +175,6 @@ public class TransacationService {
 
 	public boolean verifyXVerifyHeader(String xVerify, String responseBody) {
 		logger.info("Verification of transaction details started");
-		logger.info("response body :: " + responseBody);
 		logger.info("xVerify ::" + xVerify);
 		PhonePePaymentClient phonePeClient = new PhonePePaymentClient(phonepeConfig.getPhonePeMerchantId(),
 				phonepeConfig.getPhonePeSaltKey(), Integer.valueOf(phonepeConfig.getPhonePeSaltIndex()), Env.PROD,

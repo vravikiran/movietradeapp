@@ -41,10 +41,10 @@ public class TransactionController {
 	@PostMapping("/details/update")
 	public ResponseEntity<String> saveTransactionDetails(HttpServletRequest request, @RequestBody String response)
 			throws IOException {
-		logger.info("Response received from phonepe :: " + response);
+		logger.info("Response received from phonepe");
 		Gson gson = new Gson();
 		PaymentResponse paymentResponse = gson.fromJson(response, PaymentResponse.class);
-		logger.info("updating transaction details started ::" + paymentResponse.toString());
+		logger.info("updating transaction details started");
 		boolean isVerified = false;
 		String xVerifyHeader = request.getHeader("X-VERIFY");
 		logger.info("xVerifyHeader ::" + xVerifyHeader);
