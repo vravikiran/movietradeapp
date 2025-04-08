@@ -43,8 +43,6 @@ public class MessageService {
 	ValidUserAccountRepository validUserAccountRepository;
 
 	public void generateOtp(String mobileNo) throws ApiException, UnauthorizedUserException {
-		logger.info("started generating otp for given mobile number :: " + mobileNo);
-		logger.info("seller number :: "+SELLER_NO);
 		if (mobileNo != null && validUserAccountRepository.existsById(Long.valueOf(mobileNo))) {
 			if (mobileNo != TEST_MOBILE_NO) {
 				PhoneNumber to = new PhoneNumber("+91" + mobileNo);

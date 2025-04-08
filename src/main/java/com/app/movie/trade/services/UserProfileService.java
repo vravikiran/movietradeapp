@@ -94,8 +94,7 @@ public class UserProfileService implements UserDetailsService {
 
 	public void addBankAccDetailsToProfile(long mobileno, BankAccountDetails bankAccountDetails)
 			throws UserNotFoundException, InvalidBankDetailsException {
-		logger.info("verifying bank account details and adding it to user profile with mobile number :: " + mobileno
-				+ " account details :: " + bankAccountDetails.toString());
+		logger.info("verifying bank account details and adding it to user profile with mobile number :: " + mobileno+" started");
 		UserProfile userProfile = null;
 		if (userProfileRepository.existsById(mobileno)) {
 			userProfile = userProfileRepository.getReferenceById(mobileno);
@@ -121,8 +120,7 @@ public class UserProfileService implements UserDetailsService {
 
 	public void verifyAndAddKycDetails(long mobileno, KycDetails kycDetails)
 			throws UserNotFoundException, InvalidKycDetailsException {
-		logger.info("verifying kyc details and adding it to user profile with given mobile number :: " + mobileno
-				+ " kyc details :: " + kycDetails.toString());
+		logger.info("verifying kyc details and adding it to user profile with given mobile number :: " + mobileno+" started");
 		UserProfile userProfile = null;
 		if (userProfileRepository.existsById(mobileno)) {
 			userProfile = userProfileRepository.getReferenceById(mobileno);

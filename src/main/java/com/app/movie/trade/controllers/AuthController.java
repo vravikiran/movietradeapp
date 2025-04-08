@@ -43,13 +43,11 @@ public class AuthController {
 	@PostMapping("/validateOtp")
 	public ResponseEntity<String> validateOtp(@RequestBody AuthRequest authRequest)
 			throws NoSuchElementException, Exception {
-		logger.info("validating otp started with  given mobile number and otp :: " + authRequest.toString());
-		logger.info("validating otp started with  given mobile number " + authRequest.getMobileNo() + " otp :: "
-				+ authRequest.getOtp());
+		logger.info("validating otp started with  given mobile number " + authRequest.getMobileNo());
 		String token = "";
 		boolean isOtpValid = otpService.validateOtp(authRequest);
 		logger.info(
-				"is otp validation result for given mobile number :: " + authRequest.getMobileNo() + " " + isOtpValid);
+				"is otp validation successful for given mobile number :: " + authRequest.getMobileNo() + " " + isOtpValid);
 		if (isOtpValid) {
 			token = jwtHelper.generateToken(authRequest.getMobileNo());
 			logger.info("otp validated successfully");

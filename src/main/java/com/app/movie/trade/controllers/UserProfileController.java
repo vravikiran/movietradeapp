@@ -43,7 +43,7 @@ public class UserProfileController {
 	@PostMapping
 	public ResponseEntity<UserProfile> createUserProfile(@RequestBody UserProfile userProfile)
 			throws DuplicateUserException, Exception {
-		logger.info("creating user profile with details :: " + userProfile.toString());
+		logger.info("creating user profile started :: ");
 		UserProfile createdUserProfile = userProfileService.createUserProfile(userProfile,false);
 		logger.info("creation of user profile successful");
 		return ResponseEntity.ok(createdUserProfile);
@@ -52,7 +52,9 @@ public class UserProfileController {
 	@PostMapping("/admin")
 	@PreAuthorize("hasAuthority('SUPER_ADMIN')")
 	public ResponseEntity<UserProfile> createAdminUser(@RequestBody UserProfile userProfile) throws DuplicateUserException, Exception {
+		logger.info("creating Admin user profile started :: ");
 		userProfileService.createUserProfile(userProfile,true);
+		logger.info("creation of Admin user profile successful");
 		return ResponseEntity.ok(userProfile);
 	}
 
@@ -78,7 +80,7 @@ public class UserProfileController {
 			@RequestBody BankAccountDetails bankAccountDetails)
 			throws UserNotFoundException, InvalidBankDetailsException {
 		logger.info("verification of bank details and adding to user profile with mobile number :: " + mobileno
-				+ " started :: " + bankAccountDetails.toString());
+				+ " started");
 		userProfileService.addBankAccDetailsToProfile(mobileno, bankAccountDetails);
 		logger.info(
 				"verification of bank details completed successfully and added to user profile with mobile number ::"
@@ -90,7 +92,7 @@ public class UserProfileController {
 	public ResponseEntity<String> addKycDetailsToProfile(@RequestParam long mobileno,
 			@RequestBody KycDetails kycDetails) throws UserNotFoundException, InvalidKycDetailsException {
 		logger.info("kyc verification started and adding kyc details to user profile with mobile number :: " + mobileno
-				+ " started :: " + kycDetails.toString());
+				+ " started");
 		userProfileService.verifyAndAddKycDetails(mobileno, kycDetails);
 		logger.info(
 				"kyc verification completed successfully and added to user profile with mobile number :: " + mobileno);
